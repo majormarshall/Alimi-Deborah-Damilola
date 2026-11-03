@@ -117,18 +117,26 @@ INSERT INTO resume_items (type, title, subtitle, period, description, display_or
 ON CONFLICT DO NOTHING;
 
 -- ================================================================
--- STORAGE BUCKETS (run separately if the above fails)
--- Go to: Storage → New bucket → portfolio-images (Public: ON)
--- Go to: Storage → New bucket → profile-images (Public: ON)
--- Then add these storage policies in Storage → Policies:
+-- STORAGE BUCKETS — IMPORTANT: 2-step process
+-- ----------------------------------------------------------------
+-- STEP A (Supabase Dashboard UI):
+--   1. Go to Storage → click "New bucket"
+--   2. Name: portfolio-images  → toggle "Public bucket" ON → Save
+--   3. Click "New bucket" again
+--   4. Name: profile-images    → toggle "Public bucket" ON → Save
+--
+-- STEP B (run the SQL below in SQL Editor):
+--   After creating both buckets above, run this entire block.
 -- ================================================================
 
 -- Storage read (public)
--- CREATE POLICY "Public read portfolio images" ON storage.objects FOR SELECT USING (bucket_id = 'portfolio-images');
--- CREATE POLICY "Public read profile images"   ON storage.objects FOR SELECT USING (bucket_id = 'profile-images');
+CREATE POLICY "Public read portfolio images" ON storage.objects FOR SELECT USING (bucket_id = 'portfolio-images');
+CREATE POLICY "Public read profile images"   ON storage.objects FOR SELECT USING (bucket_id = 'profile-images');
 
--- Storage write (auth only)
--- CREATE POLICY "Auth upload portfolio images" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'portfolio-images' AND auth.role() = 'authenticated');
--- CREATE POLICY "Auth delete portfolio images" ON storage.objects FOR DELETE USING (bucket_id = 'portfolio-images' AND auth.role() = 'authenticated');
--- CREATE POLICY "Auth upload profile images"   ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'profile-images' AND auth.role() = 'authenticated');
--- CREATE POLICY "Auth delete profile images"   ON storage.objects FOR DELETE USING (bucket_id = 'profile-images' AND auth.role() = 'authenticated');
+-- Storage write & delete (authenticated admin only)
+CREATE POLICY "Auth upload portfolio images" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'portfolio-images' AND auth.role() = 'authenticated');
+CREATE POLICY "Auth update portfolio images" ON storage.objects FOR UPDATE USING   (bucket_id = 'portfolio-images' AND auth.role() = 'authenticated');
+CREATE POLICY "Auth delete portfolio images" ON storage.objects FOR DELETE USING   (bucket_id = 'portfolio-images' AND auth.role() = 'authenticated');
+CREATE POLICY "Auth upload profile images"   ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'profile-images'   AND auth.role() = 'authenticated');
+CREATE POLICY "Auth update profile images"   ON storage.objects FOR UPDATE USING   (bucket_id = 'profile-images'   AND auth.role() = 'authenticated');
+CREATE POLICY "Auth delete profile images"   ON storage.objects FOR DELETE USING   (bucket_id = 'profile-images'   AND auth.role() = 'authenticated');
