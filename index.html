@@ -621,40 +621,106 @@
           </div>
 
           <div class="col-lg-7">
-            <form action="forms/contact.php" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
+            <form id="contact-form" class="php-email-form" data-aos="fade-up" data-aos-delay="200" novalidate>
               <div class="row gy-4">
 
                 <div class="col-md-6">
                   <label for="name-field" class="pb-2">Your Name</label>
-                  <input type="text" name="name" id="name-field" class="form-control" required="">
+                  <input type="text" name="name" id="name-field" class="form-control" required>
                 </div>
 
                 <div class="col-md-6">
                   <label for="email-field" class="pb-2">Your Email</label>
-                  <input type="email" class="form-control" name="email" id="email-field" required="">
+                  <input type="email" class="form-control" name="email" id="email-field" required>
                 </div>
 
                 <div class="col-md-12">
                   <label for="subject-field" class="pb-2">Subject</label>
-                  <input type="text" class="form-control" name="subject" id="subject-field" required="">
+                  <input type="text" class="form-control" name="subject" id="subject-field" required>
                 </div>
 
                 <div class="col-md-12">
                   <label for="message-field" class="pb-2">Message</label>
-                  <textarea class="form-control" name="message" rows="10" id="message-field" required=""></textarea>
+                  <textarea class="form-control" name="message" rows="10" id="message-field" required></textarea>
                 </div>
 
                 <div class="col-md-12 text-center">
-                  <div class="loading">Loading</div>
-                  <div class="error-message"></div>
-                  <div class="sent-message">Your message has been sent. Thank you!</div>
-
-                  <button type="submit">Send Message</button>
+                  <div class="loading" id="contact-loading">Sending…</div>
+                  <div class="error-message" id="contact-error"></div>
+                  <div class="sent-message" id="contact-success">✅ Your message has been sent. Thank you!</div>
+                  <button type="submit" id="contact-submit-btn">Send Message</button>
                 </div>
 
               </div>
             </form>
           </div><!-- End Contact Form -->
+
+          <script>
+          (function() {
+            // ── FORMSPREE CONTACT FORM ────────────────────────────────────────
+            // To activate: sign up at https://formspree.io with Dammy's Gmail,
+            // create a new form, copy the form ID (e.g. xkgwblzp) and replace
+            // YOUR_FORMSPREE_ID below. That's all — emails go straight to Gmail.
+            const FORMSPREE_ID = 'YOUR_FORMSPREE_ID';
+
+            const form    = document.getElementById('contact-form');
+            const loading = document.getElementById('contact-loading');
+            const errBox  = document.getElementById('contact-error');
+            const success = document.getElementById('contact-success');
+            const btn     = document.getElementById('contact-submit-btn');
+
+            form.addEventListener('submit', async function(e) {
+              e.preventDefault();
+
+              // Client-side validation
+              if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+              }
+
+              if (FORMSPREE_ID === 'YOUR_FORMSPREE_ID') {
+                errBox.textContent = '⚠️ Contact form not yet activated. Please email directly: alimideborahdamilola978@gmail.com';
+                errBox.style.display = 'block';
+                return;
+              }
+
+              // Show loading state
+              loading.style.display = 'block';
+              errBox.style.display  = 'none';
+              success.style.display = 'none';
+              btn.disabled = true;
+              btn.textContent = 'Sending…';
+
+              try {
+                const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+                  method: 'POST',
+                  headers: { 'Accept': 'application/json' },
+                  body: new FormData(form)
+                });
+
+                loading.style.display = 'none';
+
+                if (res.ok) {
+                  success.style.display = 'block';
+                  form.reset();
+                } else {
+                  const data = await res.json();
+                  errBox.textContent = data.errors
+                    ? data.errors.map(err => err.message).join(', ')
+                    : 'Something went wrong. Please try again or email directly.';
+                  errBox.style.display = 'block';
+                }
+              } catch (err) {
+                loading.style.display = 'none';
+                errBox.textContent = 'Network error. Please check your connection and try again.';
+                errBox.style.display = 'block';
+              }
+
+              btn.disabled = false;
+              btn.textContent = 'Send Message';
+            });
+          })();
+          </script>
 
         </div>
 
@@ -685,7 +751,7 @@
 
   <!-- Vendor JS Files -->
   <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <!-- php-email-form removed: using Formspree instead -->
   <script src="assets/vendor/aos/aos.js"></script>
   <script src="assets/vendor/typed.js/typed.umd.js"></script>
   <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
