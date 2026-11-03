@@ -601,6 +601,25 @@
       </div>
 
       <div class="card">
+        <!-- Hero Background Image -->
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <i class="bi bi-image" style="color:var(--accent)"></i> Hero Background Image
+          <span style="font-size:12px;font-weight:400;color:var(--muted);">— the big full-screen photo on the homepage</span>
+        </h3>
+        <div class="img-upload-zone" style="margin-bottom:24px;" onclick="document.getElementById('hero-img-input').click()">
+          <input type="file" id="hero-img-input" accept="image/*" onchange="previewHeroImg(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;">
+          <i class="bi bi-panorama" id="hero-icon"></i>
+          <p id="hero-upload-label">Click to upload hero background photo</p>
+          <img id="hero-preview" class="img-preview" style="aspect-ratio:21/6;">
+        </div>
+        <input type="hidden" id="hero-existing-image">
+
+        <div class="divider"></div>
+
+        <!-- Profile Photo -->
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <i class="bi bi-person-circle" style="color:var(--accent2)"></i> Profile / Sidebar Photo
+        </h3>
         <div class="profile-upload-area" onclick="document.getElementById('profile-img-input').click()" id="profile-drop">
           <img id="profile-preview" style="display:none;">
           <i class="bi bi-person-circle" id="profile-icon"></i>
@@ -1145,6 +1164,17 @@ async function loadAbout() {
   document.getElementById('about-bio').value      = data.bio || '';
   document.getElementById('about-summary').value  = data.summary || '';
 
+  // Hero background
+  if (data.hero_image_url) {
+    document.getElementById('hero-existing-image').value = data.hero_image_url;
+    const prev = document.getElementById('hero-preview');
+    prev.src = data.hero_image_url;
+    prev.style.display = 'block';
+    document.getElementById('hero-icon').style.display  = 'none';
+    document.getElementById('hero-upload-label').textContent = 'Click to change hero image';
+  }
+
+  // Profile photo
   if (data.profile_image_url) {
     const img  = document.getElementById('profile-preview');
     const icon = document.getElementById('profile-icon');
@@ -1164,13 +1194,31 @@ function previewProfileImg(input) {
   icon.style.display = 'none';
 }
 
-async function saveAbout() {
-  const fileEl = document.getElementById('profile-img-input');
-  let imageUrl = null;
+function previewHeroImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const prev  = document.getElementById('hero-preview');
+  const icon  = document.getElementById('hero-icon');
+  const label = document.getElementById('hero-upload-label');
+  prev.src = URL.createObjectURL(file);
+  prev.style.display  = 'block';
+  icon.style.display  = 'none';
+  label.textContent   = 'Click to change hero image';
+}
 
-  if (fileEl.files[0]) {
-    imageUrl = await uploadImage(fileEl.files[0], 'profile-images');
-    if (!imageUrl) return;
+async function saveAbout() {
+  const profileFileEl = document.getElementById('profile-img-input');
+  const heroFileEl    = document.getElementById('hero-img-input');
+  let profileUrl = null;
+  let heroUrl    = null;
+
+  if (heroFileEl.files[0]) {
+    heroUrl = await uploadImage(heroFileEl.files[0], 'portfolio-images');
+    if (!heroUrl) return;
+  }
+  if (profileFileEl.files[0]) {
+    profileUrl = await uploadImage(profileFileEl.files[0], 'profile-images');
+    if (!profileUrl) return;
   }
 
   const payload = {
@@ -1185,11 +1233,12 @@ async function saveAbout() {
     bio:        document.getElementById('about-bio').value.trim(),
     summary:    document.getElementById('about-summary').value.trim(),
   };
-  if (imageUrl) payload.profile_image_url = imageUrl;
+  if (profileUrl) payload.profile_image_url = profileUrl;
+  if (heroUrl)    payload.hero_image_url    = heroUrl;
 
   const { error } = await sb.from('about').upsert({ id: 1, ...payload });
   if (error) { toast('error', error.message); return; }
-  toast('success', 'Profile saved successfully!');
+  toast('success', 'Profile & images saved successfully!');
 }
 
 // ── RESUME ───────────────────────────────────────────────────────────────

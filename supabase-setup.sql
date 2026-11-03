@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS about (
   bio TEXT DEFAULT 'Film and Multimedia Production graduate with hands-on experience in television and radio operations, photography, videography, and studio coordination.',
   summary TEXT DEFAULT 'A creative and detail-driven media professional with a strong foundation in broadcast production, photography, and visual storytelling.',
   profile_image_url TEXT,
+  hero_image_url TEXT,
   location TEXT DEFAULT 'Ibadan, Oyo State, Nigeria',
   phone TEXT DEFAULT '07083114554',
   email TEXT DEFAULT 'alimideborahdamilola978@gmail.com',

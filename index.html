@@ -739,6 +739,10 @@
       if (about.profile_image_url) {
         document.querySelectorAll('.profile-img img, #about img').forEach(img => img.src = about.profile_image_url);
       }
+      if (about.hero_image_url) {
+        const heroImg = document.querySelector('#hero > img');
+        if (heroImg) heroImg.src = about.hero_image_url;
+      }
     }
 
     // ── SKILLS ───────────────────────────────────────────────
