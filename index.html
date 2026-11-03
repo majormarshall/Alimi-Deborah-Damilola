@@ -702,6 +702,123 @@
   <!-- Main JS File -->
   <script src="assets/js/main.js"></script>
 
+  <!-- Supabase Dynamic Content -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
+  <script>
+  (async function loadPortfolioData() {
+    // Skip if Supabase not yet configured
+    if (!window.SUPABASE_URL || window.SUPABASE_URL.includes('YOUR_PROJECT')) return;
+
+    const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+    // ── ABOUT ────────────────────────────────────────────────
+    const { data: about } = await sb.from('about').select('*').eq('id', 1).single();
+    if (about) {
+      if (about.full_name) {
+        document.querySelectorAll('.sitename').forEach(el => el.textContent = about.full_name.split(' ')[0] + ' Alimi');
+        document.querySelector('#hero h2') && (document.querySelector('#hero h2').textContent = about.full_name);
+        document.querySelector('title') && (document.querySelector('title').textContent = about.full_name + ' | Media Production & Communications');
+      }
+      if (about.tagline) {
+        const typed = document.querySelector('.typed');
+        if (typed) typed.setAttribute('data-typed-items', about.tagline);
+      }
+      if (about.bio) {
+        const bioEl = document.querySelector('#about .section-title p');
+        if (bioEl) bioEl.textContent = about.bio;
+      }
+      if (about.summary) {
+        const summaryEl = document.querySelector('#about .fst-italic');
+        if (summaryEl) summaryEl.textContent = about.summary;
+      }
+      if (about.location)   { document.querySelectorAll('#about li span')[0] && (document.querySelectorAll('#about li span')[0].textContent = about.location); }
+      if (about.phone)      { document.querySelectorAll('#about li span')[1] && (document.querySelectorAll('#about li span')[1].textContent = about.phone); }
+      if (about.email)      { document.querySelectorAll('#about li span')[2] && (document.querySelectorAll('#about li span')[2].textContent = about.email); }
+      if (about.instagram)  { document.querySelectorAll('#about li span')[3] && (document.querySelectorAll('#about li span')[3].textContent = about.instagram); }
+      if (about.profile_image_url) {
+        document.querySelectorAll('.profile-img img, #about img').forEach(img => img.src = about.profile_image_url);
+      }
+    }
+
+    // ── SKILLS ───────────────────────────────────────────────
+    const { data: skills } = await sb.from('skills').select('*').order('display_order');
+    if (skills && skills.length) {
+      const wrap = document.querySelector('.skills-content');
+      if (wrap) {
+        const half = Math.ceil(skills.length / 2);
+        const col1 = skills.slice(0, half);
+        const col2 = skills.slice(half);
+        const renderSkills = arr => arr.map(s => `
+          <div class="progress">
+            <span class="skill"><span>${s.name}</span> <i class="val">${s.percentage}%</i></span>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar" role="progressbar" aria-valuenow="${s.percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>`).join('');
+        wrap.innerHTML = `<div class="col-lg-6">${renderSkills(col1)}</div><div class="col-lg-6">${renderSkills(col2)}</div>`;
+      }
+    }
+
+    // ── SERVICES ─────────────────────────────────────────────
+    const { data: services } = await sb.from('services').select('*').order('display_order');
+    if (services && services.length) {
+      const svcRow = document.querySelector('#services .row.gy-4');
+      if (svcRow) {
+        const delays = [100,200,300,400,500,600];
+        svcRow.innerHTML = services.map((svc, i) => `
+          <div class="col-lg-4 col-md-6 service-item d-flex" data-aos="fade-up" data-aos-delay="${delays[i]||100}">
+            <div class="icon flex-shrink-0"><i class="bi ${svc.icon || 'bi-camera'}"></i></div>
+            <div>
+              <h4 class="title"><a href="service-details.html" class="stretched-link">${svc.title}</a></h4>
+              <p class="description">${svc.description || ''}</p>
+            </div>
+          </div>`).join('');
+      }
+    }
+
+    // ── PORTFOLIO ITEMS ───────────────────────────────────────
+    const { data: items } = await sb.from('portfolio_items').select('*').order('display_order');
+    if (items && items.length) {
+      const container = document.querySelector('.isotope-container');
+      if (container) {
+        container.innerHTML = items.map(item => {
+          const cat = (item.category || 'photography').toLowerCase().replace(/\s+/g, '-');
+          const imgSrc = item.image_url || 'assets/img/portfolio/app-1.jpg';
+          return `
+          <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-${cat}">
+            <div class="portfolio-content h-100">
+              <img src="${imgSrc}" class="img-fluid" alt="${item.title}" loading="lazy">
+              <div class="portfolio-info">
+                <h4>${item.title}</h4>
+                <p>${item.description || ''}</p>
+                <a href="${imgSrc}" title="${item.title}" data-gallery="portfolio-gallery-${cat}" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
+                <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+
+        // Re-init Isotope after injecting items
+        if (window.Isotope) {
+          setTimeout(() => {
+            const iso = new Isotope(container, { itemSelector: '.portfolio-item', layoutMode: 'masonry' });
+            document.querySelectorAll('.portfolio-filters li').forEach(btn => {
+              btn.addEventListener('click', function() {
+                document.querySelector('.portfolio-filters .filter-active')?.classList.remove('filter-active');
+                this.classList.add('filter-active');
+                iso.arrange({ filter: this.getAttribute('data-filter') });
+              });
+            });
+            if (window.AOS) AOS.refresh();
+            if (window.GLightbox) GLightbox({ selector: '.glightbox' });
+          }, 200);
+        }
+      }
+    }
+  })();
+  </script>
+
 </body>
 
 </html>

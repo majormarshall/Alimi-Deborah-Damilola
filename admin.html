@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Dammy Alimi Portfolio</title>
+  <link rel="icon" href="assets/img/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0d16;
+      --surface:   #111827;
+      --card:      #1f2937;
+      --border:    #2d3748;
+      --accent:    #f97316;
+      --accent2:   #8b5cf6;
+      --success:   #10b981;
+      --danger:    #ef4444;
+      --text:      #f1f5f9;
+      --muted:     #94a3b8;
+      --radius:    12px;
+      --sidebar-w: 240px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── LOGIN ──────────────────────────────────── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at 30% 50%, #1a1040 0%, var(--bg) 60%);
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 25px 60px rgba(0,0,0,.6);
+    }
+
+    .login-logo {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; margin: 0 auto 24px;
+    }
+
+    .login-card h1 { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+    .login-card p  { color: var(--muted); text-align: center; font-size: 14px; margin-bottom: 32px; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 8px; }
+
+    .form-control {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 12px 16px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .form-control:focus { border-color: var(--accent); }
+    .form-control::placeholder { color: #4b5563; }
+
+    select.form-control option { background: var(--card); }
+
+    textarea.form-control { resize: vertical; min-height: 90px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+      text-decoration: none;
+    }
+    .btn-primary  { background: var(--accent); color: #fff; width: 100%; justify-content: center; }
+    .btn-primary:hover  { background: #ea6c0a; transform: translateY(-1px); }
+    .btn-success  { background: var(--success); color: #fff; }
+    .btn-success:hover  { background: #0da271; }
+    .btn-danger   { background: var(--danger); color: #fff; }
+    .btn-danger:hover   { background: #dc2626; }
+    .btn-ghost    { background: var(--border); color: var(--text); }
+    .btn-ghost:hover    { background: #374151; }
+    .btn-sm { padding: 7px 14px; font-size: 13px; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+
+    /* ── DASHBOARD LAYOUT ─────────────────────── */
+    #dashboard { display: none; min-height: 100vh; }
+
+    #sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-header .brand { font-size: 16px; font-weight: 700; }
+    .sidebar-header .brand span { color: var(--accent); }
+    .sidebar-header .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .sidebar-nav { padding: 16px 12px; flex: 1; }
+    .nav-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; padding: 8px 8px 4px; }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      transition: all .15s;
+      margin-bottom: 2px;
+    }
+    .nav-item:hover { background: var(--card); color: var(--text); }
+    .nav-item.active { background: rgba(249,115,22,.15); color: var(--accent); }
+    .nav-item i { font-size: 18px; width: 20px; text-align: center; }
+    .nav-badge {
+      margin-left: auto;
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+      min-width: 22px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 16px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .user-info { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .user-avatar {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 14px;
+    }
+    .user-name { font-size: 13px; font-weight: 600; }
+    .user-role { font-size: 11px; color: var(--muted); }
+
+    #main-content {
+      margin-left: var(--sidebar-w);
+      padding: 32px;
+      min-height: 100vh;
+    }
+
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .page-header h2 { font-size: 22px; font-weight: 700; }
+    .page-header p  { font-size: 14px; color: var(--muted); margin-top: 2px; }
+
+    /* ── TABS ─────────────────────────────────── */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* ── CARDS ────────────────────────────────── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .stat-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .stat-icon.orange { background: rgba(249,115,22,.15); color: var(--accent); }
+    .stat-icon.purple { background: rgba(139,92,246,.15); color: var(--accent2); }
+    .stat-icon.green  { background: rgba(16,185,129,.15); color: var(--success); }
+    .stat-icon.blue   { background: rgba(59,130,246,.15); color: #3b82f6; }
+    .stat-val { font-size: 28px; font-weight: 700; }
+    .stat-lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* ── PORTFOLIO GRID ───────────────────────── */
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .portfolio-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .portfolio-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,.4); }
+
+    .portfolio-card img {
+      width: 100%; aspect-ratio: 4/3; object-fit: cover;
+      background: var(--border);
+    }
+    .portfolio-card .no-img {
+      width: 100%; aspect-ratio: 4/3;
+      background: var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; color: #4b5563;
+    }
+    .portfolio-card-body { padding: 14px; }
+    .portfolio-card-body h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .portfolio-card-body p  { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+    .portfolio-card-body .category-badge {
+      display: inline-block;
+      font-size: 11px; font-weight: 600;
+      padding: 3px 9px; border-radius: 20px;
+      background: rgba(249,115,22,.15); color: var(--accent);
+      margin-bottom: 10px;
+      text-transform: capitalize;
+    }
+    .portfolio-card-actions { display: flex; gap: 8px; }
+
+    /* ── SKILLS LIST ──────────────────────────── */
+    .skill-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .skill-name { flex: 1; font-size: 14px; font-weight: 500; }
+    .skill-bar-wrap { flex: 2; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .skill-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width .4s; }
+    .skill-pct { font-size: 13px; font-weight: 700; color: var(--accent); width: 36px; text-align: right; }
+    .skill-actions { display: flex; gap: 6px; }
+
+    /* ── SERVICES GRID ────────────────────────── */
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+    .service-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .service-icon { font-size: 28px; color: var(--accent); margin-bottom: 12px; }
+    .service-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    .service-card p  { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+    .service-actions { display: flex; gap: 8px; }
+
+    /* ── RESUME TIMELINE ──────────────────────── */
+    .resume-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .resume-section-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .resume-item-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 10px 10px 0;
+      padding: 16px;
+      margin-bottom: 10px;
+    }
+    .resume-item-card h5 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .resume-item-card .sub { font-size: 13px; color: var(--accent); margin-bottom: 2px; }
+    .resume-item-card .period { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .resume-item-card p { font-size: 13px; color: #9ca3af; }
+    .resume-item-actions { display: flex; gap: 6px; margin-top: 10px; }
+
+    /* ── ABOUT FORM ───────────────────────────── */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .profile-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s;
+      margin-bottom: 20px;
+    }
+    .profile-upload-area:hover { border-color: var(--accent); }
+    .profile-upload-area img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; }
+    .profile-upload-area i { font-size: 36px; color: var(--muted); display: block; margin-bottom: 8px; }
+    .profile-upload-area p { font-size: 13px; color: var(--muted); }
+
+    /* ── MODAL ────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s;
+    }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(20px);
+      transition: transform .2s;
+      padding: 28px;
+    }
+    .modal-overlay.show .modal { transform: translateY(0); }
+
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .modal-header h3 { font-size: 18px; font-weight: 700; }
+    .modal-close { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; padding: 4px; line-height: 1; }
+    .modal-close:hover { color: var(--text); }
+
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+    /* ── IMAGE UPLOAD ─────────────────────────── */
+    .img-upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+    }
+    .img-upload-zone:hover { border-color: var(--accent); background: rgba(249,115,22,.04); }
+    .img-upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+    .img-upload-zone i { font-size: 32px; color: var(--muted); display: block; margin-bottom: 8px; }
+    .img-upload-zone p { font-size: 13px; color: var(--muted); }
+    .img-preview { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 8px; margin-top: 12px; display: none; }
+
+    /* ── RANGE SLIDER ─────────────────────────── */
+    input[type=range] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* ── TOAST ────────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      top: 24px; right: 24px;
+      z-index: 9999;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .toast {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex; align-items: center; gap: 12px;
+      font-size: 14px;
+      min-width: 280px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+      animation: slideIn .3s ease;
+    }
+    .toast.success { border-left: 4px solid var(--success); }
+    .toast.error   { border-left: 4px solid var(--danger); }
+    .toast i.bi-check-circle-fill { color: var(--success); font-size: 18px; }
+    .toast i.bi-x-circle-fill     { color: var(--danger); font-size: 18px; }
+    @keyframes slideIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+
+    /* ── MISC ─────────────────────────────────── */
+    .divider { height: 1px; background: var(--border); margin: 24px 0; }
+    .empty-state { text-align: center; padding: 48px; color: var(--muted); }
+    .empty-state i { font-size: 48px; display: block; margin-bottom: 12px; }
+    .loading-spinner {
+      width: 40px; height: 40px; margin: 48px auto;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .icon-grid {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-height: 180px; overflow-y: auto;
+    }
+    .icon-option {
+      background: var(--card); border: 2px solid var(--border);
+      border-radius: 8px; padding: 10px;
+      text-align: center; cursor: pointer;
+      font-size: 20px; transition: all .15s;
+    }
+    .icon-option:hover, .icon-option.selected { border-color: var(--accent); color: var(--accent); }
+
+    @media (max-width: 900px) {
+      #sidebar { transform: translateX(-100%); }
+      #main-content { margin-left: 0; padding: 20px; }
+      .resume-cols { grid-template-columns: 1fr; }
+      .about-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ LOGIN SCREEN ═════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🎬</div>
+    <h1>Admin Dashboard</h1>
+    <p>Dammy Alimi Portfolio — sign in to manage your content</p>
+
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="login-email" class="form-control" placeholder="your@email.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="login-password" class="form-control" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div id="login-error" style="color:var(--danger);font-size:13px;margin-bottom:16px;display:none;"></div>
+    <button class="btn btn-primary" id="login-btn" onclick="login()">
+      <i class="bi bi-lock-fill"></i> Sign In
+    </button>
+    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:20px;">
+      First time? Create your account in Supabase Auth, then come back here.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ DASHBOARD ════════════════════════════════ -->
+<div id="dashboard">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">Dammy <span>Admin</span></div>
+      <div class="sub">Portfolio Manager</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label">Content</div>
+      <div class="nav-item active" onclick="showTab('overview')">
+        <i class="bi bi-grid-fill"></i> Overview
+      </div>
+      <div class="nav-item" onclick="showTab('portfolio')">
+        <i class="bi bi-images"></i> Portfolio
+        <span class="nav-badge" id="badge-portfolio">0</span>
+      </div>
+      <div class="nav-item" onclick="showTab('skills')">
+        <i class="bi bi-tools"></i> Skills
+        <span class="nav-badge" id="badge-skills">0</span>
+      </div>
+      <div class="nav-item" onclick="showTab('services')">
+        <i class="bi bi-briefcase"></i> Services
+        <span class="nav-badge" id="badge-services">0</span>
+      </div>
+      <div class="nav-label" style="margin-top:12px;">Profile</div>
+      <div class="nav-item" onclick="showTab('about')">
+        <i class="bi bi-person-circle"></i> About & Profile
+      </div>
+      <div class="nav-item" onclick="showTab('resume')">
+        <i class="bi bi-file-earmark-text"></i> Resume
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="avatar-letter">D</div>
+        <div>
+          <div class="user-name" id="user-name-display">Admin</div>
+          <div class="user-role">Portfolio Owner</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="logout()">
+        <i class="bi bi-box-arrow-right"></i> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main id="main-content">
+
+    <!-- ── OVERVIEW ─────────────────────────────────── -->
+    <div class="tab-content active" id="tab-overview">
+      <div class="page-header">
+        <div><h2>👋 Welcome back, Deborah!</h2><p>Here's a snapshot of your portfolio.</p></div>
+        <a href="index.html" target="_blank" class="btn btn-ghost"><i class="bi bi-box-arrow-up-right"></i> View Live Site</a>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-icon orange"><i class="bi bi-images"></i></div>
+          <div><div class="stat-val" id="stat-portfolio">—</div><div class="stat-lbl">Portfolio Items</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple"><i class="bi bi-tools"></i></div>
+          <div><div class="stat-val" id="stat-skills">—</div><div class="stat-lbl">Skills</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="bi bi-briefcase"></i></div>
+          <div><div class="stat-val" id="stat-services">—</div><div class="stat-lbl">Services</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="bi bi-file-text"></i></div>
+          <div><div class="stat-val" id="stat-resume">—</div><div class="stat-lbl">Resume Entries</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:12px;font-size:16px;">Quick Actions</h3>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="showTab('portfolio');openPortfolioModal()"><i class="bi bi-plus-lg"></i> Add Portfolio Item</button>
+          <button class="btn btn-ghost btn-sm" onclick="showTab('skills')"><i class="bi bi-tools"></i> Manage Skills</button>
+          <button class="btn btn-ghost btn-sm" onclick="showTab('about')"><i class="bi bi-person-circle"></i> Update Profile</button>
+          <a href="index.html" target="_blank" class="btn btn-ghost btn-sm"><i class="bi bi-eye"></i> Preview Site</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PORTFOLIO ──────────────────────────────────── -->
+    <div class="tab-content" id="tab-portfolio">
+      <div class="page-header">
+        <div><h2>Portfolio Items</h2><p>Add, edit or remove your work samples.</p></div>
+        <button class="btn btn-primary" onclick="openPortfolioModal()"><i class="bi bi-plus-lg"></i> Add Item</button>
+      </div>
+      <div class="portfolio-grid" id="portfolio-grid">
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+
+    <!-- ── SKILLS ─────────────────────────────────────── -->
+    <div class="tab-content" id="tab-skills">
+      <div class="page-header">
+        <div><h2>Skills</h2><p>Manage your skill bars and proficiency levels.</p></div>
+        <button class="btn btn-primary" onclick="openSkillModal()"><i class="bi bi-plus-lg"></i> Add Skill</button>
+      </div>
+      <div id="skills-list"><div class="loading-spinner"></div></div>
+    </div>
+
+    <!-- ── SERVICES ───────────────────────────────────── -->
+    <div class="tab-content" id="tab-services">
+      <div class="page-header">
+        <div><h2>Services</h2><p>What you offer to clients.</p></div>
+        <button class="btn btn-primary" onclick="openServiceModal()"><i class="bi bi-plus-lg"></i> Add Service</button>
+      </div>
+      <div class="services-grid" id="services-grid"><div class="loading-spinner"></div></div>
+    </div>
+
+    <!-- ── ABOUT ──────────────────────────────────────── -->
+    <div class="tab-content" id="tab-about">
+      <div class="page-header">
+        <div><h2>About & Profile</h2><p>Update your bio and personal info.</p></div>
+        <button class="btn btn-success" onclick="saveAbout()"><i class="bi bi-check-lg"></i> Save Changes</button>
+      </div>
+
+      <div class="card">
+        <div class="profile-upload-area" onclick="document.getElementById('profile-img-input').click()" id="profile-drop">
+          <img id="profile-preview" style="display:none;">
+          <i class="bi bi-person-circle" id="profile-icon"></i>
+          <p>Click to upload profile photo</p>
+          <input type="file" id="profile-img-input" accept="image/*" style="display:none" onchange="previewProfileImg(this)">
+        </div>
+
+        <div class="about-grid">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" class="form-control" id="about-name">
+          </div>
+          <div class="form-group">
+            <label>Typed Roles (comma-separated)</label>
+            <input type="text" class="form-control" id="about-tagline" placeholder="Photographer, Videographer, ...">
+          </div>
+          <div class="form-group">
+            <label>Location</label>
+            <input type="text" class="form-control" id="about-location">
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="text" class="form-control" id="about-phone">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" class="form-control" id="about-email">
+          </div>
+          <div class="form-group">
+            <label>Instagram Handle</label>
+            <input type="text" class="form-control" id="about-instagram" placeholder="@dammyalimimedia">
+          </div>
+          <div class="form-group">
+            <label>Degree</label>
+            <input type="text" class="form-control" id="about-degree">
+          </div>
+          <div class="form-group">
+            <label>School</label>
+            <input type="text" class="form-control" id="about-school">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Short Bio (appears under About heading)</label>
+          <textarea class="form-control" id="about-bio" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Full Summary (appears in About section body)</label>
+          <textarea class="form-control" id="about-summary" rows="4"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RESUME ─────────────────────────────────────── -->
+    <div class="tab-content" id="tab-resume">
+      <div class="page-header">
+        <div><h2>Resume</h2><p>Education and work experience entries.</p></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-ghost" onclick="openResumeModal('education')"><i class="bi bi-mortarboard"></i> Add Education</button>
+          <button class="btn btn-primary" onclick="openResumeModal('experience')"><i class="bi bi-briefcase"></i> Add Experience</button>
+        </div>
+      </div>
+      <div class="resume-cols">
+        <div>
+          <div class="resume-section-title"><i class="bi bi-mortarboard" style="color:var(--accent)"></i> Education</div>
+          <div id="resume-education"><div class="loading-spinner"></div></div>
+        </div>
+        <div>
+          <div class="resume-section-title"><i class="bi bi-briefcase" style="color:var(--accent2)"></i> Experience</div>
+          <div id="resume-experience"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div><!-- /dashboard -->
+
+<!-- ═══════════════════════════ MODALS ════════════════════════════════════ -->
+
+<!-- Portfolio Modal -->
+<div class="modal-overlay" id="portfolio-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="portfolio-modal-title">Add Portfolio Item</h3>
+      <button class="modal-close" onclick="closeModal('portfolio-modal-overlay')">×</button>
+    </div>
+    <input type="hidden" id="portfolio-edit-id">
+    <div class="form-group">
+      <label>Title *</label>
+      <input type="text" class="form-control" id="p-title" placeholder="e.g. Portrait Photography">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <input type="text" class="form-control" id="p-desc" placeholder="Short caption">
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <select class="form-control" id="p-category">
+        <option value="photography">Photography</option>
+        <option value="events">Events</option>
+        <option value="studio">Studio</option>
+        <option value="broadcast">Broadcast</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Image</label>
+      <div class="img-upload-zone" id="p-drop-zone">
+        <input type="file" id="p-image-file" accept="image/*" onchange="previewPortfolioImg(this)">
+        <i class="bi bi-cloud-upload"></i>
+        <p>Click or drag an image here</p>
+        <img id="p-img-preview" class="img-preview">
+      </div>
+      <input type="hidden" id="p-existing-image">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('portfolio-modal-overlay')">Cancel</button>
+      <button class="btn btn-success" id="portfolio-save-btn" onclick="savePortfolioItem()"><i class="bi bi-check-lg"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Skill Modal -->
+<div class="modal-overlay" id="skill-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="skill-modal-title">Add Skill</h3>
+      <button class="modal-close" onclick="closeModal('skill-modal-overlay')">×</button>
+    </div>
+    <input type="hidden" id="skill-edit-id">
+    <div class="form-group">
+      <label>Skill Name *</label>
+      <input type="text" class="form-control" id="s-name" placeholder="e.g. Adobe Photoshop">
+    </div>
+    <div class="form-group">
+      <label>Proficiency — <span id="s-pct-display">80</span>%</label>
+      <input type="range" id="s-pct" min="0" max="100" value="80" oninput="document.getElementById('s-pct-display').textContent=this.value">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('skill-modal-overlay')">Cancel</button>
+      <button class="btn btn-success" onclick="saveSkill()"><i class="bi bi-check-lg"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Service Modal -->
+<div class="modal-overlay" id="service-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="service-modal-title">Add Service</h3>
+      <button class="modal-close" onclick="closeModal('service-modal-overlay')">×</button>
+    </div>
+    <input type="hidden" id="svc-edit-id">
+    <div class="form-group">
+      <label>Service Title *</label>
+      <input type="text" class="form-control" id="svc-title" placeholder="e.g. Photography">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea class="form-control" id="svc-desc" rows="3" placeholder="What this service includes…"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Icon (Bootstrap Icons)</label>
+      <div class="icon-grid" id="icon-grid"></div>
+      <input type="hidden" id="svc-icon" value="bi-camera">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('service-modal-overlay')">Cancel</button>
+      <button class="btn btn-success" onclick="saveService()"><i class="bi bi-check-lg"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Resume Modal -->
+<div class="modal-overlay" id="resume-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="resume-modal-title">Add Entry</h3>
+      <button class="modal-close" onclick="closeModal('resume-modal-overlay')">×</button>
+    </div>
+    <input type="hidden" id="r-edit-id">
+    <input type="hidden" id="r-type">
+    <div class="form-group">
+      <label>Title *</label>
+      <input type="text" class="form-control" id="r-title" placeholder="Job title or degree name">
+    </div>
+    <div class="form-group">
+      <label>Organisation / School</label>
+      <input type="text" class="form-control" id="r-subtitle" placeholder="Company or institution name">
+    </div>
+    <div class="form-group">
+      <label>Period</label>
+      <input type="text" class="form-control" id="r-period" placeholder="e.g. 2022 – 2024">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea class="form-control" id="r-desc" rows="3" placeholder="What you did or studied…"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('resume-modal-overlay')">Cancel</button>
+      <button class="btn btn-success" onclick="saveResumeItem()"><i class="bi bi-check-lg"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ TOAST ════════════════════════════════════ -->
+<div id="toast-container"></div>
+
+<!-- ═══════════════════════════ SCRIPTS ══════════════════════════════════ -->
+<script>
+// ── INIT SUPABASE ────────────────────────────────────────────────────────
+const SETUP_REQUIRED = !window.SUPABASE_URL || window.SUPABASE_URL.includes('YOUR_PROJECT');
+
+let sb = null;
+if (!SETUP_REQUIRED) {
+  sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+} else {
+  document.getElementById('login-error').style.display = 'block';
+  document.getElementById('login-error').textContent =
+    '⚠️ Supabase is not configured yet. Open assets/js/supabase-config.js and fill in your project URL and anon key.';
+}
+
+// ── AUTH ─────────────────────────────────────────────────────────────────
+async function login() {
+  if (!sb) return;
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value;
+  const btn   = document.getElementById('login-btn');
+  const err   = document.getElementById('login-error');
+
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Signing in…';
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) {
+    err.textContent = error.message;
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-lock-fill"></i> Sign In';
+    return;
+  }
+  showDashboard(data.user);
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+async function checkSession() {
+  if (!sb) return;
+  const { data } = await sb.auth.getSession();
+  if (data.session) showDashboard(data.session.user);
+}
+
+function showDashboard(user) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display   = 'flex';
+  const name = user.email.split('@')[0];
+  document.getElementById('user-name-display').textContent = name;
+  document.getElementById('avatar-letter').textContent     = name[0].toUpperCase();
+  loadAll();
+}
+
+// ── TAB NAVIGATION ───────────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.trim().toLowerCase().startsWith(name.slice(0,4)) ||
+        n.getAttribute('onclick')?.includes(name)) n.classList.add('active');
+  });
+  // Lazy-load on tab switch
+  if (name === 'portfolio') loadPortfolio();
+  if (name === 'skills')    loadSkills();
+  if (name === 'services')  loadServices();
+  if (name === 'about')     loadAbout();
+  if (name === 'resume')    loadResume();
+}
+
+async function loadAll() {
+  const [p, sk, sv, r] = await Promise.all([
+    sb.from('portfolio_items').select('id', { count: 'exact', head: true }),
+    sb.from('skills').select('id', { count: 'exact', head: true }),
+    sb.from('services').select('id', { count: 'exact', head: true }),
+    sb.from('resume_items').select('id', { count: 'exact', head: true }),
+  ]);
+  set('stat-portfolio', p.count ?? 0);
+  set('stat-skills',    sk.count ?? 0);
+  set('stat-services',  sv.count ?? 0);
+  set('stat-resume',    r.count ?? 0);
+  set('badge-portfolio', p.count ?? 0);
+  set('badge-skills',    sk.count ?? 0);
+  set('badge-services',  sv.count ?? 0);
+}
+
+// ── PORTFOLIO ────────────────────────────────────────────────────────────
+async function loadPortfolio() {
+  const grid = document.getElementById('portfolio-grid');
+  grid.innerHTML = '<div class="loading-spinner"></div>';
+  const { data, error } = await sb.from('portfolio_items').select('*').order('display_order');
+  if (error) { grid.innerHTML = `<p style="color:var(--danger)">${error.message}</p>`; return; }
+  if (!data.length) {
+    grid.innerHTML = '<div class="empty-state"><i class="bi bi-images"></i><p>No portfolio items yet.<br>Click "Add Item" to get started.</p></div>';
+    return;
+  }
+  grid.innerHTML = data.map(item => `
+    <div class="portfolio-card">
+      ${item.image_url
+        ? `<img src="${item.image_url}" alt="${esc(item.title)}" loading="lazy">`
+        : `<div class="no-img"><i class="bi bi-image"></i></div>`}
+      <div class="portfolio-card-body">
+        <div class="category-badge">${esc(item.category || 'photography')}</div>
+        <h4>${esc(item.title)}</h4>
+        <p>${esc(item.description || '')}</p>
+        <div class="portfolio-card-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openPortfolioModal(${JSON.stringify(item)})"><i class="bi bi-pencil"></i> Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deletePortfolioItem('${item.id}','${esc(item.image_url||'')}')"><i class="bi bi-trash"></i></button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openPortfolioModal(item = null) {
+  document.getElementById('portfolio-edit-id').value = item?.id || '';
+  document.getElementById('p-title').value           = item?.title || '';
+  document.getElementById('p-desc').value            = item?.description || '';
+  document.getElementById('p-category').value        = item?.category || 'photography';
+  document.getElementById('p-existing-image').value  = item?.image_url || '';
+  document.getElementById('p-image-file').value      = '';
+  const preview = document.getElementById('p-img-preview');
+  if (item?.image_url) { preview.src = item.image_url; preview.style.display = 'block'; }
+  else                 { preview.style.display = 'none'; }
+  document.getElementById('portfolio-modal-title').textContent = item ? 'Edit Portfolio Item' : 'Add Portfolio Item';
+  openModal('portfolio-modal-overlay');
+}
+
+function previewPortfolioImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const preview = document.getElementById('p-img-preview');
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+}
+
+async function savePortfolioItem() {
+  const id       = document.getElementById('portfolio-edit-id').value;
+  const title    = document.getElementById('p-title').value.trim();
+  const desc     = document.getElementById('p-desc').value.trim();
+  const cat      = document.getElementById('p-category').value;
+  const fileEl   = document.getElementById('p-image-file');
+  const existing = document.getElementById('p-existing-image').value;
+  const btn      = document.getElementById('portfolio-save-btn');
+
+  if (!title) { toast('error', 'Title is required.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  let imageUrl = existing;
+  if (fileEl.files[0]) {
+    const uploaded = await uploadImage(fileEl.files[0], 'portfolio-images');
+    if (!uploaded) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-lg"></i> Save'; return; }
+    imageUrl = uploaded;
+  }
+
+  const payload = { title, description: desc, category: cat, image_url: imageUrl };
+  const { error } = id
+    ? await sb.from('portfolio_items').update(payload).eq('id', id)
+    : await sb.from('portfolio_items').insert([payload]);
+
+  btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-lg"></i> Save';
+  if (error) { toast('error', error.message); return; }
+
+  toast('success', id ? 'Portfolio item updated!' : 'Portfolio item added!');
+  closeModal('portfolio-modal-overlay');
+  loadPortfolio();
+  loadAll();
+}
+
+async function deletePortfolioItem(id, imageUrl) {
+  if (!confirm('Delete this portfolio item?')) return;
+  const { error } = await sb.from('portfolio_items').delete().eq('id', id);
+  if (error) { toast('error', error.message); return; }
+  // Optionally remove image from storage
+  if (imageUrl && imageUrl.includes('supabase')) {
+    const path = imageUrl.split('/portfolio-images/')[1];
+    if (path) await sb.storage.from('portfolio-images').remove([path]);
+  }
+  toast('success', 'Item deleted.');
+  loadPortfolio();
+  loadAll();
+}
+
+// ── SKILLS ───────────────────────────────────────────────────────────────
+async function loadSkills() {
+  const list = document.getElementById('skills-list');
+  list.innerHTML = '<div class="loading-spinner"></div>';
+  const { data, error } = await sb.from('skills').select('*').order('display_order');
+  if (error) { list.innerHTML = `<p style="color:var(--danger)">${error.message}</p>`; return; }
+  if (!data.length) {
+    list.innerHTML = '<div class="empty-state"><i class="bi bi-tools"></i><p>No skills yet. Add your first skill!</p></div>';
+    return;
+  }
+  list.innerHTML = data.map(s => `
+    <div class="skill-item">
+      <div class="skill-name">${esc(s.name)}</div>
+      <div class="skill-bar-wrap"><div class="skill-bar" style="width:${s.percentage}%"></div></div>
+      <div class="skill-pct">${s.percentage}%</div>
+      <div class="skill-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openSkillModal(${JSON.stringify(s)})"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-danger btn-sm" onclick="deleteSkill('${s.id}')"><i class="bi bi-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openSkillModal(skill = null) {
+  document.getElementById('skill-edit-id').value = skill?.id || '';
+  document.getElementById('s-name').value        = skill?.name || '';
+  document.getElementById('s-pct').value         = skill?.percentage || 80;
+  document.getElementById('s-pct-display').textContent = skill?.percentage || 80;
+  document.getElementById('skill-modal-title').textContent = skill ? 'Edit Skill' : 'Add Skill';
+  openModal('skill-modal-overlay');
+}
+
+async function saveSkill() {
+  const id  = document.getElementById('skill-edit-id').value;
+  const name = document.getElementById('s-name').value.trim();
+  const pct  = parseInt(document.getElementById('s-pct').value);
+  if (!name) { toast('error', 'Skill name is required.'); return; }
+
+  const payload = { name, percentage: pct };
+  const { error } = id
+    ? await sb.from('skills').update(payload).eq('id', id)
+    : await sb.from('skills').insert([payload]);
+
+  if (error) { toast('error', error.message); return; }
+  toast('success', id ? 'Skill updated!' : 'Skill added!');
+  closeModal('skill-modal-overlay');
+  loadSkills(); loadAll();
+}
+
+async function deleteSkill(id) {
+  if (!confirm('Delete this skill?')) return;
+  const { error } = await sb.from('skills').delete().eq('id', id);
+  if (error) { toast('error', error.message); return; }
+  toast('success', 'Skill deleted.');
+  loadSkills(); loadAll();
+}
+
+// ── SERVICES ─────────────────────────────────────────────────────────────
+const ICONS = ['bi-camera','bi-camera-video','bi-scissors','bi-image','bi-tv','bi-people',
+  'bi-mic','bi-film','bi-broadcast','bi-star','bi-heart','bi-lightning',
+  'bi-phone','bi-laptop','bi-easel','bi-brush','bi-palette','bi-pen'];
+
+async function loadServices() {
+  const grid = document.getElementById('services-grid');
+  grid.innerHTML = '<div class="loading-spinner"></div>';
+  const { data, error } = await sb.from('services').select('*').order('display_order');
+  if (error) { grid.innerHTML = `<p style="color:var(--danger)">${error.message}</p>`; return; }
+  if (!data.length) {
+    grid.innerHTML = '<div class="empty-state"><i class="bi bi-briefcase"></i><p>No services yet.</p></div>';
+    return;
+  }
+  grid.innerHTML = data.map(svc => `
+    <div class="service-card">
+      <div class="service-icon"><i class="bi ${esc(svc.icon || 'bi-camera')}"></i></div>
+      <h4>${esc(svc.title)}</h4>
+      <p>${esc(svc.description || '')}</p>
+      <div class="service-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openServiceModal(${JSON.stringify(svc)})"><i class="bi bi-pencil"></i> Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteService('${svc.id}')"><i class="bi bi-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openServiceModal(svc = null) {
+  document.getElementById('svc-edit-id').value = svc?.id || '';
+  document.getElementById('svc-title').value   = svc?.title || '';
+  document.getElementById('svc-desc').value    = svc?.description || '';
+  document.getElementById('svc-icon').value    = svc?.icon || 'bi-camera';
+  document.getElementById('service-modal-title').textContent = svc ? 'Edit Service' : 'Add Service';
+
+  // Render icon grid
+  const selectedIcon = svc?.icon || 'bi-camera';
+  document.getElementById('icon-grid').innerHTML = ICONS.map(ic => `
+    <div class="icon-option ${ic === selectedIcon ? 'selected' : ''}" onclick="selectIcon('${ic}',this)">
+      <i class="bi ${ic}"></i>
+    </div>
+  `).join('');
+
+  openModal('service-modal-overlay');
+}
+
+function selectIcon(icon, el) {
+  document.querySelectorAll('.icon-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('svc-icon').value = icon;
+}
+
+async function saveService() {
+  const id   = document.getElementById('svc-edit-id').value;
+  const title = document.getElementById('svc-title').value.trim();
+  const desc  = document.getElementById('svc-desc').value.trim();
+  const icon  = document.getElementById('svc-icon').value;
+  if (!title) { toast('error', 'Service title is required.'); return; }
+
+  const payload = { title, description: desc, icon };
+  const { error } = id
+    ? await sb.from('services').update(payload).eq('id', id)
+    : await sb.from('services').insert([payload]);
+
+  if (error) { toast('error', error.message); return; }
+  toast('success', id ? 'Service updated!' : 'Service added!');
+  closeModal('service-modal-overlay');
+  loadServices(); loadAll();
+}
+
+async function deleteService(id) {
+  if (!confirm('Delete this service?')) return;
+  const { error } = await sb.from('services').delete().eq('id', id);
+  if (error) { toast('error', error.message); return; }
+  toast('success', 'Service deleted.');
+  loadServices(); loadAll();
+}
+
+// ── ABOUT ─────────────────────────────────────────────────────────────────
+async function loadAbout() {
+  const { data } = await sb.from('about').select('*').eq('id', 1).single();
+  if (!data) return;
+  document.getElementById('about-name').value     = data.full_name || '';
+  document.getElementById('about-tagline').value  = data.tagline || '';
+  document.getElementById('about-location').value = data.location || '';
+  document.getElementById('about-phone').value    = data.phone || '';
+  document.getElementById('about-email').value    = data.email || '';
+  document.getElementById('about-instagram').value= data.instagram || '';
+  document.getElementById('about-degree').value   = data.degree || '';
+  document.getElementById('about-school').value   = data.school || '';
+  document.getElementById('about-bio').value      = data.bio || '';
+  document.getElementById('about-summary').value  = data.summary || '';
+
+  if (data.profile_image_url) {
+    const img  = document.getElementById('profile-preview');
+    const icon = document.getElementById('profile-icon');
+    img.src = data.profile_image_url;
+    img.style.display  = 'block';
+    icon.style.display = 'none';
+  }
+}
+
+function previewProfileImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const img  = document.getElementById('profile-preview');
+  const icon = document.getElementById('profile-icon');
+  img.src = URL.createObjectURL(file);
+  img.style.display  = 'block';
+  icon.style.display = 'none';
+}
+
+async function saveAbout() {
+  const fileEl = document.getElementById('profile-img-input');
+  let imageUrl = null;
+
+  if (fileEl.files[0]) {
+    imageUrl = await uploadImage(fileEl.files[0], 'profile-images');
+    if (!imageUrl) return;
+  }
+
+  const payload = {
+    full_name:  document.getElementById('about-name').value.trim(),
+    tagline:    document.getElementById('about-tagline').value.trim(),
+    location:   document.getElementById('about-location').value.trim(),
+    phone:      document.getElementById('about-phone').value.trim(),
+    email:      document.getElementById('about-email').value.trim(),
+    instagram:  document.getElementById('about-instagram').value.trim(),
+    degree:     document.getElementById('about-degree').value.trim(),
+    school:     document.getElementById('about-school').value.trim(),
+    bio:        document.getElementById('about-bio').value.trim(),
+    summary:    document.getElementById('about-summary').value.trim(),
+  };
+  if (imageUrl) payload.profile_image_url = imageUrl;
+
+  const { error } = await sb.from('about').upsert({ id: 1, ...payload });
+  if (error) { toast('error', error.message); return; }
+  toast('success', 'Profile saved successfully!');
+}
+
+// ── RESUME ───────────────────────────────────────────────────────────────
+async function loadResume() {
+  const { data, error } = await sb.from('resume_items').select('*').order('display_order');
+  if (error) { toast('error', error.message); return; }
+  const edu = data.filter(r => r.type === 'education');
+  const exp = data.filter(r => r.type === 'experience');
+
+  const renderList = (items, container) => {
+    document.getElementById(container).innerHTML = items.length
+      ? items.map(r => `
+          <div class="resume-item-card">
+            <h5>${esc(r.title)}</h5>
+            <div class="sub">${esc(r.subtitle || '')}</div>
+            <div class="period">${esc(r.period || '')}</div>
+            <p>${esc(r.description || '')}</p>
+            <div class="resume-item-actions">
+              <button class="btn btn-ghost btn-sm" onclick="openResumeModal('${r.type}',${JSON.stringify(r)})"><i class="bi bi-pencil"></i> Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteResumeItem('${r.id}')"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>`).join('')
+      : '<div class="empty-state" style="padding:24px"><i class="bi bi-inbox"></i><p>None yet.</p></div>';
+  };
+  renderList(edu, 'resume-education');
+  renderList(exp, 'resume-experience');
+}
+
+function openResumeModal(type, item = null) {
+  document.getElementById('r-edit-id').value = item?.id || '';
+  document.getElementById('r-type').value    = type;
+  document.getElementById('r-title').value   = item?.title || '';
+  document.getElementById('r-subtitle').value= item?.subtitle || '';
+  document.getElementById('r-period').value  = item?.period || '';
+  document.getElementById('r-desc').value    = item?.description || '';
+  document.getElementById('resume-modal-title').textContent =
+    (item ? 'Edit ' : 'Add ') + (type === 'education' ? 'Education' : 'Experience');
+  openModal('resume-modal-overlay');
+}
+
+async function saveResumeItem() {
+  const id      = document.getElementById('r-edit-id').value;
+  const type    = document.getElementById('r-type').value;
+  const title   = document.getElementById('r-title').value.trim();
+  const subtitle= document.getElementById('r-subtitle').value.trim();
+  const period  = document.getElementById('r-period').value.trim();
+  const desc    = document.getElementById('r-desc').value.trim();
+  if (!title) { toast('error', 'Title is required.'); return; }
+
+  const payload = { type, title, subtitle, period, description: desc };
+  const { error } = id
+    ? await sb.from('resume_items').update(payload).eq('id', id)
+    : await sb.from('resume_items').insert([payload]);
+
+  if (error) { toast('error', error.message); return; }
+  toast('success', id ? 'Entry updated!' : 'Entry added!');
+  closeModal('resume-modal-overlay');
+  loadResume(); loadAll();
+}
+
+async function deleteResumeItem(id) {
+  if (!confirm('Delete this entry?')) return;
+  const { error } = await sb.from('resume_items').delete().eq('id', id);
+  if (error) { toast('error', error.message); return; }
+  toast('success', 'Entry deleted.');
+  loadResume(); loadAll();
+}
+
+// ── STORAGE UPLOAD ────────────────────────────────────────────────────────
+async function uploadImage(file, bucket) {
+  const ext  = file.name.split('.').pop();
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error: uploadErr } = await sb.storage.from(bucket).upload(path, file, { upsert: false });
+  if (uploadErr) { toast('error', 'Upload failed: ' + uploadErr.message); return null; }
+  const { data } = sb.storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+// ── MODAL HELPERS ─────────────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('show'); });
+});
+
+// ── TOAST ─────────────────────────────────────────────────────────────────
+function toast(type, msg) {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}"></i><span>${esc(msg)}</span>`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+// Enter key triggers login
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') login();
+});
+
+// ── BOOT ───────────────────────────────────────────────────────────────────
+checkSession();
+</script>
+</body>
+</html>
