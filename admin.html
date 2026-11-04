@@ -174,7 +174,21 @@
       display: flex; align-items: center; justify-content: center;
       font-weight: 700; font-size: 14px;
     }
-    .user-name { font-size: 13px; font-weight: 600; }
+    .user-name {
+      font-size: 13px; font-weight: 600;
+      cursor: pointer;
+      border-bottom: 1px dashed transparent;
+      transition: border-color .2s;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;
+    }
+    .user-name:hover { border-bottom-color: var(--accent); color: var(--accent); }
+    .user-name-input {
+      font-size: 13px; font-weight: 600;
+      background: var(--card); border: 1px solid var(--accent);
+      border-radius: 6px; color: var(--text);
+      padding: 2px 6px; width: 100%; font-family: inherit;
+      outline: none;
+    }
     .user-role { font-size: 11px; color: var(--muted); }
 
     #main-content {
@@ -516,8 +530,8 @@
     <div class="sidebar-footer">
       <div class="user-info">
         <div class="user-avatar" id="avatar-letter">D</div>
-        <div>
-          <div class="user-name" id="user-name-display">Admin</div>
+        <div style="flex:1;min-width:0;">
+          <div class="user-name" id="user-name-display" onclick="startEditName()" title="Click to edit display name">Admin</div>
           <div class="user-role">Portfolio Owner</div>
         </div>
       </div>
@@ -965,6 +979,10 @@ async function loadPortfolio() {
     grid.innerHTML = '<div class="empty-state"><i class="bi bi-images"></i><p>No portfolio items yet.<br>Click "Add Item" to get started.</p></div>';
     return;
   }
+  // Store items in a registry so onclick can reference by id safely
+  window._portfolioItems = {};
+  data.forEach(item => { window._portfolioItems[item.id] = item; });
+
   grid.innerHTML = data.map(item => `
     <div class="portfolio-card">
       ${item.image_url
@@ -975,7 +993,7 @@ async function loadPortfolio() {
         <h4>${esc(item.title)}</h4>
         <p>${esc(item.description || '')}</p>
         <div class="portfolio-card-actions">
-          <button class="btn btn-ghost btn-sm" onclick="openPortfolioModal(${JSON.stringify(item)})"><i class="bi bi-pencil"></i> Edit</button>
+          <button class="btn btn-ghost btn-sm" onclick="openPortfolioModal(window._portfolioItems['${item.id}'])"><i class="bi bi-pencil"></i> Edit</button>
           <button class="btn btn-danger btn-sm" onclick="deletePortfolioItem('${item.id}','${esc(item.image_url||'')}')"><i class="bi bi-trash"></i></button>
         </div>
       </div>
@@ -1063,13 +1081,16 @@ async function loadSkills() {
     list.innerHTML = '<div class="empty-state"><i class="bi bi-tools"></i><p>No skills yet. Add your first skill!</p></div>';
     return;
   }
+  window._skillItems = {};
+  data.forEach(s => { window._skillItems[s.id] = s; });
+
   list.innerHTML = data.map(s => `
     <div class="skill-item">
       <div class="skill-name">${esc(s.name)}</div>
       <div class="skill-bar-wrap"><div class="skill-bar" style="width:${s.percentage}%"></div></div>
       <div class="skill-pct">${s.percentage}%</div>
       <div class="skill-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openSkillModal(${JSON.stringify(s)})"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-ghost btn-sm" onclick="openSkillModal(window._skillItems['${s.id}'])"><i class="bi bi-pencil"></i></button>
         <button class="btn btn-danger btn-sm" onclick="deleteSkill('${s.id}')"><i class="bi bi-trash"></i></button>
       </div>
     </div>
@@ -1124,13 +1145,16 @@ async function loadServices() {
     grid.innerHTML = '<div class="empty-state"><i class="bi bi-briefcase"></i><p>No services yet.</p></div>';
     return;
   }
+  window._serviceItems = {};
+  data.forEach(svc => { window._serviceItems[svc.id] = svc; });
+
   grid.innerHTML = data.map(svc => `
     <div class="service-card">
       <div class="service-icon"><i class="bi ${esc(svc.icon || 'bi-camera')}"></i></div>
       <h4>${esc(svc.title)}</h4>
       <p>${esc(svc.description || '')}</p>
       <div class="service-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openServiceModal(${JSON.stringify(svc)})"><i class="bi bi-pencil"></i> Edit</button>
+        <button class="btn btn-ghost btn-sm" onclick="openServiceModal(window._serviceItems['${svc.id}'])"><i class="bi bi-pencil"></i> Edit</button>
         <button class="btn btn-danger btn-sm" onclick="deleteService('${svc.id}')"><i class="bi bi-trash"></i></button>
       </div>
     </div>
@@ -1201,6 +1225,13 @@ async function loadAbout() {
   document.getElementById('about-school').value   = data.school || '';
   document.getElementById('about-bio').value      = data.bio || '';
   document.getElementById('about-summary').value  = data.summary || '';
+
+  // Update sidebar name from the about table
+  if (data.full_name) {
+    const nameEl = document.getElementById('user-name-display');
+    nameEl.textContent = data.full_name;
+    document.getElementById('avatar-letter').textContent = data.full_name[0].toUpperCase();
+  }
 
   // Hero background
   if (data.hero_image_url) {
@@ -1313,6 +1344,9 @@ async function loadResume() {
   const edu = data.filter(r => r.type === 'education');
   const exp = data.filter(r => r.type === 'experience');
 
+  window._resumeItems = {};
+  data.forEach(r => { window._resumeItems[r.id] = r; });
+
   const renderList = (items, container) => {
     document.getElementById(container).innerHTML = items.length
       ? items.map(r => `
@@ -1322,7 +1356,7 @@ async function loadResume() {
             <div class="period">${esc(r.period || '')}</div>
             <p>${esc(r.description || '')}</p>
             <div class="resume-item-actions">
-              <button class="btn btn-ghost btn-sm" onclick="openResumeModal('${r.type}',${JSON.stringify(r)})"><i class="bi bi-pencil"></i> Edit</button>
+              <button class="btn btn-ghost btn-sm" onclick="openResumeModal('${r.type}', window._resumeItems['${r.id}'])"><i class="bi bi-pencil"></i> Edit</button>
               <button class="btn btn-danger btn-sm" onclick="deleteResumeItem('${r.id}')"><i class="bi bi-trash"></i></button>
             </div>
           </div>`).join('')
@@ -1409,6 +1443,46 @@ function esc(s) {
 function set(id, val) {
   const el = document.getElementById(id);
   if (el) el.textContent = val;
+}
+
+// ── SIDEBAR NAME EDIT ─────────────────────────────────────────────────────
+function startEditName() {
+  const nameEl = document.getElementById('user-name-display');
+  const current = nameEl.textContent;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'user-name-input';
+  input.value = current;
+  nameEl.replaceWith(input);
+  input.focus();
+  input.select();
+
+  async function commitName() {
+    const newName = input.value.trim() || current;
+    const span = document.createElement('div');
+    span.className = 'user-name';
+    span.id = 'user-name-display';
+    span.title = 'Click to edit display name';
+    span.textContent = newName;
+    span.onclick = startEditName;
+    input.replaceWith(span);
+    if (newName !== current) {
+      document.getElementById('avatar-letter').textContent = newName[0].toUpperCase();
+      // Also update the about-name field if it's visible
+      const aboutNameEl = document.getElementById('about-name');
+      if (aboutNameEl) aboutNameEl.value = newName;
+      // Persist to Supabase
+      const { error } = await sb.from('about').upsert({ id: 1, full_name: newName });
+      if (error) toast('error', 'Could not save name: ' + error.message);
+      else toast('success', 'Name updated!');
+    }
+  }
+
+  input.addEventListener('blur', commitName);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { input.value = current; input.blur(); }
+  });
 }
 
 // Enter key triggers login
