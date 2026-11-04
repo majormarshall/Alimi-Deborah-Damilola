@@ -106,16 +106,16 @@
             <div class="row">
               <div class="col-lg-6">
                 <ul>
-                  <li><i class="bi bi-chevron-right"></i> <strong>Location:</strong> <span>Ibadan, Oyo State, Nigeria</span></li>
-                  <li><i class="bi bi-chevron-right"></i> <strong>Phone:</strong> <span>07083114554</span></li>
-                  <li><i class="bi bi-chevron-right"></i> <strong>Email:</strong> <span>alimideborahdamilola978@gmail.com</span></li>
-                  <li><i class="bi bi-chevron-right"></i> <strong>Instagram:</strong> <span>@dammyalimimedia</span></li>
+                  <li><i class="bi bi-chevron-right"></i> <strong>Location:</strong> <span id="about-loc">Ibadan, Oyo State, Nigeria</span></li>
+                  <li><i class="bi bi-chevron-right"></i> <strong>Phone:</strong> <span id="about-ph">07083114554</span></li>
+                  <li><i class="bi bi-chevron-right"></i> <strong>Email:</strong> <span id="about-em">alimideborahdamilola978@gmail.com</span></li>
+                  <li><i class="bi bi-chevron-right"></i> <strong>Instagram:</strong> <span id="about-ig">@dammyalimimedia</span></li>
                 </ul>
               </div>
               <div class="col-lg-6">
                 <ul>
-                  <li><i class="bi bi-chevron-right"></i> <strong>Degree:</strong> <span>HND Film &amp; Multimedia Production</span></li>
-                  <li><i class="bi bi-chevron-right"></i> <strong>School:</strong> <span>Fed. Poly Offa, Kwara State</span></li>
+                  <li><i class="bi bi-chevron-right"></i> <strong>Degree:</strong> <span id="about-deg">HND Film &amp; Multimedia Production</span></li>
+                  <li><i class="bi bi-chevron-right"></i> <strong>School:</strong> <span id="about-schl">Fed. Poly Offa, Kwara State</span></li>
                   <li><i class="bi bi-chevron-right"></i> <strong>Freelance:</strong> <span>Available</span></li>
                   <li><i class="bi bi-chevron-right"></i> <strong>Open to:</strong> <span>Relocation (incl. Lagos)</span></li>
                 </ul>
@@ -141,7 +141,7 @@
           <div class="col-lg-3 col-md-6">
             <div class="stats-item">
               <i class="bi bi-camera"></i>
-              <span data-purecounter-start="0" data-purecounter-end="2" data-purecounter-duration="1" class="purecounter"></span>
+              <span id="stat-years" data-purecounter-start="0" data-purecounter-end="2" data-purecounter-duration="1" class="purecounter"></span>
               <p><strong>Years Experience</strong> <span>in photography &amp; videography</span></p>
             </div>
           </div><!-- End Stats Item -->
@@ -149,7 +149,7 @@
           <div class="col-lg-3 col-md-6">
             <div class="stats-item">
               <i class="bi bi-tv"></i>
-              <span data-purecounter-start="0" data-purecounter-end="2" data-purecounter-duration="1" class="purecounter"></span>
+              <span id="stat-internships" data-purecounter-start="0" data-purecounter-end="2" data-purecounter-duration="1" class="purecounter"></span>
               <p><strong>Broadcast Internships</strong> <span>TV &amp; Radio stations</span></p>
             </div>
           </div><!-- End Stats Item -->
@@ -157,7 +157,7 @@
           <div class="col-lg-3 col-md-6">
             <div class="stats-item">
               <i class="bi bi-emoji-smile"></i>
-              <span data-purecounter-start="0" data-purecounter-end="50" data-purecounter-duration="1" class="purecounter"></span>
+              <span id="stat-clients" data-purecounter-start="0" data-purecounter-end="50" data-purecounter-duration="1" class="purecounter"></span>
               <p><strong>Happy Clients</strong> <span>events, portraits &amp; products</span></p>
             </div>
           </div><!-- End Stats Item -->
@@ -165,7 +165,7 @@
           <div class="col-lg-3 col-md-6">
             <div class="stats-item">
               <i class="bi bi-journal-richtext"></i>
-              <span data-purecounter-start="0" data-purecounter-end="4" data-purecounter-duration="1" class="purecounter"></span>
+              <span id="stat-experiences" data-purecounter-start="0" data-purecounter-end="4" data-purecounter-duration="1" class="purecounter"></span>
               <p><strong>Work Experiences</strong> <span>professional roles held</span></p>
             </div>
           </div><!-- End Stats Item -->
@@ -279,13 +279,14 @@
               <h4>Alimi Deborah Damilola</h4>
               <p><em>Media Production &amp; Communications professional with practical experience supporting television and radio operations, photography, videography and studio coordination. Skilled in CapCut and Adobe Photoshop, with a strong interest in content production, broadcasting and visual storytelling.</em></p>
               <ul>
-                <li>Ibadan, Oyo State, Nigeria</li>
-                <li>07083114554</li>
-                <li>alimideborahdamilola978@gmail.com</li>
+                <li id="resume-loc">Ibadan, Oyo State, Nigeria</li>
+                <li id="resume-ph">07083114554</li>
+                <li id="resume-em">alimideborahdamilola978@gmail.com</li>
               </ul>
             </div><!-- End Resume Item -->
 
             <h3 class="resume-title">Education</h3>
+            <div id="resume-edu-col">
             <div class="resume-item">
               <h4>Higher National Diploma (HND) — Film and Multimedia Production</h4>
               <h5>2024 – 2026</h5>
@@ -299,11 +300,13 @@
               <p><em>Federal Polytechnic Offa, Kwara State</em></p>
               <p>Studied Mass Communication covering broadcasting, media writing, journalism, radio and television production, and media ethics, which laid the groundwork for her career in media and production.</p>
             </div><!-- End Resume Item -->
+            </div>
 
           </div>
 
           <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
             <h3 class="resume-title">Professional Experience</h3>
+            <div id="resume-exp-col">
 
             <div class="resume-item">
               <h4>Freelance Photographer &amp; Videographer</h4>
@@ -352,6 +355,7 @@
                 <li>Gained practical exposure to television studio operations and recording workflows.</li>
               </ul>
             </div><!-- End Resume Item -->
+            </div>
 
           </div>
 
@@ -588,7 +592,7 @@
                 <i class="bi bi-geo-alt flex-shrink-0"></i>
                 <div>
                   <h3>Location</h3>
-                  <p>Ibadan, Oyo State, Nigeria<br><small style="color:#aaa;">(Open to relocation, including Lagos)</small></p>
+                  <p><span id="contact-loc">Ibadan, Oyo State, Nigeria</span><br><small style="color:#aaa;">(Open to relocation, including Lagos)</small></p>
                 </div>
               </div><!-- End Info Item -->
 
@@ -596,7 +600,7 @@
                 <i class="bi bi-telephone flex-shrink-0"></i>
                 <div>
                   <h3>Phone</h3>
-                  <p><a href="tel:+2347083114554" style="color:inherit;">07083114554</a></p>
+                  <p><a id="contact-ph" href="tel:+2347083114554" style="color:inherit;">07083114554</a></p>
                 </div>
               </div><!-- End Info Item -->
 
@@ -604,7 +608,7 @@
                 <i class="bi bi-envelope flex-shrink-0"></i>
                 <div>
                   <h3>Email</h3>
-                  <p><a href="mailto:alimideborahdamilola978@gmail.com" style="color:inherit;">alimideborahdamilola978@gmail.com</a></p>
+                  <p><a id="contact-em" href="mailto:alimideborahdamilola978@gmail.com" style="color:inherit;">alimideborahdamilola978@gmail.com</a></p>
                 </div>
               </div><!-- End Info Item -->
 
@@ -612,7 +616,7 @@
                 <i class="bi bi-instagram flex-shrink-0"></i>
                 <div>
                   <h3>Instagram</h3>
-                  <p><a href="https://instagram.com/dammyalimimedia" target="_blank" style="color:inherit;">@dammyalimimedia</a></p>
+                  <p><a id="contact-ig" href="https://instagram.com/dammyalimimedia" target="_blank" style="color:inherit;">@dammyalimimedia</a></p>
                 </div>
               </div><!-- End Info Item -->
 
@@ -736,9 +740,7 @@
       <div class="copyright text-center ">
         <p>© <span>Copyright</span> <strong class="px-1 sitename">Alimi Deborah Damilola</strong> <span>All Rights Reserved</span></p>
       </div>
-      <div class="credits">
-        Developed by <strong>Dev Spirit</strong>
-      </div>
+
     </div>
 
   </footer>
@@ -768,7 +770,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
   <script>
-  (async function loadPortfolioData() {
+  (async function loadSiteData() {
     // Skip if Supabase not yet configured
     if (!window.SUPABASE_URL || window.SUPABASE_URL.includes('YOUR_PROJECT')) return;
 
@@ -777,34 +779,74 @@
     // ── ABOUT ────────────────────────────────────────────────
     const { data: about } = await sb.from('about').select('*').eq('id', 1).single();
     if (about) {
+      // Name
       if (about.full_name) {
-        document.querySelectorAll('.sitename').forEach(el => el.textContent = about.full_name.split(' ')[0] + ' Alimi');
+        document.querySelectorAll('.sitename').forEach(el => el.textContent = about.full_name);
         document.querySelector('#hero h2') && (document.querySelector('#hero h2').textContent = about.full_name);
         document.querySelector('title') && (document.querySelector('title').textContent = about.full_name + ' | Media Production & Communications');
+        // Resume summary name
+        const resumeName = document.querySelector('#resume .resume-item h4');
+        if (resumeName) resumeName.textContent = about.full_name;
       }
+      // Typed roles
       if (about.tagline) {
         const typed = document.querySelector('.typed');
         if (typed) typed.setAttribute('data-typed-items', about.tagline);
       }
+      // About bio (section subtitle)
       if (about.bio) {
         const bioEl = document.querySelector('#about .section-title p');
         if (bioEl) bioEl.textContent = about.bio;
       }
+      // About summary (italic paragraph)
       if (about.summary) {
         const summaryEl = document.querySelector('#about .fst-italic');
         if (summaryEl) summaryEl.textContent = about.summary;
       }
-      if (about.location)   { document.querySelectorAll('#about li span')[0] && (document.querySelectorAll('#about li span')[0].textContent = about.location); }
-      if (about.phone)      { document.querySelectorAll('#about li span')[1] && (document.querySelectorAll('#about li span')[1].textContent = about.phone); }
-      if (about.email)      { document.querySelectorAll('#about li span')[2] && (document.querySelectorAll('#about li span')[2].textContent = about.email); }
-      if (about.instagram)  { document.querySelectorAll('#about li span')[3] && (document.querySelectorAll('#about li span')[3].textContent = about.instagram); }
+      // About info list items — by ID for reliability
+      const setAboutSpan = (id, val) => { const el = document.getElementById(id); if (el && val) el.textContent = val; };
+      setAboutSpan('about-loc',   about.location);
+      setAboutSpan('about-ph',    about.phone);
+      setAboutSpan('about-em',    about.email);
+      setAboutSpan('about-ig',    about.instagram);
+      setAboutSpan('about-deg',   about.degree);
+      setAboutSpan('about-schl',  about.school);
+      // Contact section
+      setAboutSpan('contact-loc', about.location);
+      const cPh = document.getElementById('contact-ph');
+      if (cPh && about.phone) { cPh.textContent = about.phone; cPh.href = 'tel:+234' + about.phone.replace(/^0/, ''); }
+      const cEm = document.getElementById('contact-em');
+      if (cEm && about.email) { cEm.textContent = about.email; cEm.href = 'mailto:' + about.email; }
+      const cIg = document.getElementById('contact-ig');
+      if (cIg && about.instagram) { cIg.textContent = about.instagram; cIg.href = 'https://instagram.com/' + about.instagram.replace('@',''); }
+      // Profile image
       if (about.profile_image_url) {
-        document.querySelectorAll('.profile-img img, #about img').forEach(img => img.src = about.profile_image_url);
+        document.querySelectorAll('.profile-img img, #about img.img-fluid').forEach(img => img.src = about.profile_image_url);
       }
+      // Hero background image
       if (about.hero_image_url) {
         const heroImg = document.querySelector('#hero > img');
         if (heroImg) heroImg.src = about.hero_image_url;
       }
+      // Social links
+      if (about.instagram) {
+        document.querySelectorAll('a.instagram').forEach(a => a.href = 'https://instagram.com/' + about.instagram.replace('@',''));
+      }
+      if (about.email) {
+        document.querySelectorAll('a[href^="mailto:"]').forEach(a => { if (!a.closest('#contact-form')) a.href = 'mailto:' + about.email; });
+      }
+      if (about.phone) {
+        document.querySelectorAll('a[href^="tel:"]').forEach(a => a.href = 'tel:+234' + about.phone.replace(/^0/, ''));
+      }
+      // Stats counters
+      const updateStat = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && val !== undefined && val !== null) el.setAttribute('data-purecounter-end', val);
+      };
+      updateStat('stat-years',      about.stat_years);
+      updateStat('stat-internships',about.stat_internships);
+      updateStat('stat-clients',    about.stat_clients);
+      updateStat('stat-experiences',about.stat_experiences);
     }
 
     // ── SKILLS ───────────────────────────────────────────────
@@ -823,6 +865,8 @@
             </div>
           </div>`).join('');
         wrap.innerHTML = `<div class="col-lg-6">${renderSkills(col1)}</div><div class="col-lg-6">${renderSkills(col2)}</div>`;
+        // Re-trigger skills animation
+        if (window.AOS) AOS.refresh();
       }
     }
 
@@ -839,6 +883,33 @@
               <h4 class="title"><a href="service-details.html" class="stretched-link">${svc.title}</a></h4>
               <p class="description">${svc.description || ''}</p>
             </div>
+          </div>`).join('');
+      }
+    }
+
+    // ── RESUME ───────────────────────────────────────────────
+    const { data: resumeItems } = await sb.from('resume_items').select('*').order('display_order');
+    if (resumeItems && resumeItems.length) {
+      const edu = resumeItems.filter(r => r.type === 'education');
+      const exp = resumeItems.filter(r => r.type === 'experience');
+      const eduCol = document.getElementById('resume-edu-col');
+      const expCol = document.getElementById('resume-exp-col');
+      if (eduCol && edu.length) {
+        eduCol.innerHTML = edu.map(r => `
+          <div class="resume-item">
+            <h4>${r.title}</h4>
+            <h5>${r.period || ''}</h5>
+            <p><em>${r.subtitle || ''}</em></p>
+            <p>${r.description || ''}</p>
+          </div>`).join('');
+      }
+      if (expCol && exp.length) {
+        expCol.innerHTML = exp.map(r => `
+          <div class="resume-item">
+            <h4>${r.title}</h4>
+            <h5>${r.period || ''}</h5>
+            <p><em>${r.subtitle || ''}</em></p>
+            <p>${r.description || ''}</p>
           </div>`).join('');
       }
     }

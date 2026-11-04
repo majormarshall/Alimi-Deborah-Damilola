@@ -45,7 +45,11 @@ CREATE TABLE IF NOT EXISTS about (
   instagram TEXT DEFAULT '@dammyalimimedia',
   degree TEXT DEFAULT 'HND Film & Multimedia Production',
   school TEXT DEFAULT 'Fed. Poly Offa, Kwara State',
-  freelance_available BOOLEAN DEFAULT true
+  freelance_available BOOLEAN DEFAULT true,
+  stat_years INTEGER DEFAULT 2,
+  stat_internships INTEGER DEFAULT 2,
+  stat_clients INTEGER DEFAULT 50,
+  stat_experiences INTEGER DEFAULT 4
 );
 
 CREATE TABLE IF NOT EXISTS resume_items (
@@ -140,3 +144,14 @@ CREATE POLICY "Auth delete portfolio images" ON storage.objects FOR DELETE USING
 CREATE POLICY "Auth upload profile images"   ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'profile-images'   AND auth.role() = 'authenticated');
 CREATE POLICY "Auth update profile images"   ON storage.objects FOR UPDATE USING   (bucket_id = 'profile-images'   AND auth.role() = 'authenticated');
 CREATE POLICY "Auth delete profile images"   ON storage.objects FOR DELETE USING   (bucket_id = 'profile-images'   AND auth.role() = 'authenticated');
+
+-- ================================================================
+-- MIGRATION — Run this if you already set up Supabase earlier
+-- (adds the 4 stat counter columns to your existing about table)
+-- Safe to run even if columns already exist.
+-- ================================================================
+ALTER TABLE about ADD COLUMN IF NOT EXISTS stat_years       INTEGER DEFAULT 2;
+ALTER TABLE about ADD COLUMN IF NOT EXISTS stat_internships INTEGER DEFAULT 2;
+ALTER TABLE about ADD COLUMN IF NOT EXISTS stat_clients     INTEGER DEFAULT 50;
+ALTER TABLE about ADD COLUMN IF NOT EXISTS stat_experiences INTEGER DEFAULT 4;
+

@@ -508,6 +508,9 @@
       <div class="nav-item" onclick="showTab('resume')">
         <i class="bi bi-file-earmark-text"></i> Resume
       </div>
+      <div class="nav-item" onclick="showTab('stats')">
+        <i class="bi bi-bar-chart-line"></i> Stats &amp; Counters
+      </div>
     </nav>
 
     <div class="sidebar-footer">
@@ -689,6 +692,40 @@
         <div>
           <div class="resume-section-title"><i class="bi bi-briefcase" style="color:var(--accent2)"></i> Experience</div>
           <div id="resume-experience"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STATS ────────────────────────────────────────────── -->
+    <div class="tab-content" id="tab-stats">
+      <div class="page-header">
+        <div><h2>Stats &amp; Counters</h2><p>The 4 animated numbers on the homepage.</p></div>
+        <button class="btn btn-success" onclick="saveStats()"><i class="bi bi-check-lg"></i> Save Changes</button>
+      </div>
+
+      <div class="card">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">These numbers appear in the animated counter section between the About and Skills sections on the live site.</p>
+        <div class="about-grid">
+          <div class="form-group">
+            <label><i class="bi bi-camera" style="color:var(--accent)"></i> &nbsp;Years Experience</label>
+            <input type="number" class="form-control" id="stat-years-val" min="0" max="999" placeholder="e.g. 2">
+            <small style="color:var(--muted);font-size:12px;">Sub-label: "in photography &amp; videography"</small>
+          </div>
+          <div class="form-group">
+            <label><i class="bi bi-tv" style="color:var(--accent2)"></i> &nbsp;Broadcast Internships</label>
+            <input type="number" class="form-control" id="stat-internships-val" min="0" max="999" placeholder="e.g. 2">
+            <small style="color:var(--muted);font-size:12px;">Sub-label: "TV &amp; Radio stations"</small>
+          </div>
+          <div class="form-group">
+            <label><i class="bi bi-emoji-smile" style="color:var(--success)"></i> &nbsp;Happy Clients</label>
+            <input type="number" class="form-control" id="stat-clients-val" min="0" max="9999" placeholder="e.g. 50">
+            <small style="color:var(--muted);font-size:12px;">Sub-label: "events, portraits &amp; products"</small>
+          </div>
+          <div class="form-group">
+            <label><i class="bi bi-journal-richtext" style="color:#3b82f6"></i> &nbsp;Work Experiences</label>
+            <input type="number" class="form-control" id="stat-experiences-val" min="0" max="999" placeholder="e.g. 4">
+            <small style="color:var(--muted);font-size:12px;">Sub-label: "professional roles held"</small>
+          </div>
         </div>
       </div>
     </div>
@@ -899,6 +936,7 @@ function showTab(name) {
   if (name === 'services')  loadServices();
   if (name === 'about')     loadAbout();
   if (name === 'resume')    loadResume();
+  if (name === 'stats')     loadStats();
 }
 
 async function loadAll() {
@@ -1182,6 +1220,12 @@ async function loadAbout() {
     img.style.display  = 'block';
     icon.style.display = 'none';
   }
+
+  // Stats fields
+  if (data.stat_years      != null) document.getElementById('stat-years-val').value       = data.stat_years;
+  if (data.stat_internships!= null) document.getElementById('stat-internships-val').value = data.stat_internships;
+  if (data.stat_clients    != null) document.getElementById('stat-clients-val').value     = data.stat_clients;
+  if (data.stat_experiences!= null) document.getElementById('stat-experiences-val').value = data.stat_experiences;
 }
 
 function previewProfileImg(input) {
@@ -1239,6 +1283,27 @@ async function saveAbout() {
   const { error } = await sb.from('about').upsert({ id: 1, ...payload });
   if (error) { toast('error', error.message); return; }
   toast('success', 'Profile & images saved successfully!');
+}
+
+// ── STATS ───────────────────────────────────────────────
+// loadStats just re-uses loadAbout (same table)
+async function loadStats() { await loadAbout(); }
+
+async function saveStats() {
+  const years      = parseInt(document.getElementById('stat-years-val').value)      || 0;
+  const internships= parseInt(document.getElementById('stat-internships-val').value) || 0;
+  const clients    = parseInt(document.getElementById('stat-clients-val').value)     || 0;
+  const experiences= parseInt(document.getElementById('stat-experiences-val').value) || 0;
+
+  const { error } = await sb.from('about').upsert({
+    id: 1,
+    stat_years:       years,
+    stat_internships: internships,
+    stat_clients:     clients,
+    stat_experiences: experiences
+  });
+  if (error) { toast('error', error.message); return; }
+  toast('success', 'Stats updated! Live site will show new numbers.');
 }
 
 // ── RESUME ───────────────────────────────────────────────────────────────
