@@ -641,7 +641,7 @@
           <img id="profile-preview" style="display:none;">
           <i class="bi bi-person-circle" id="profile-icon"></i>
           <p>Click to upload profile photo</p>
-          <input type="file" id="profile-img-input" accept="image/*" style="display:none" onchange="previewProfileImg(this)">
+          <input type="file" id="profile-img-input" accept="image/*" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;" onchange="previewProfileImg(this)">
         </div>
 
         <div class="about-grid">
@@ -776,10 +776,10 @@
     </div>
     <div class="form-group">
       <label>Image</label>
-      <div class="img-upload-zone" id="p-drop-zone">
-        <input type="file" id="p-image-file" accept="image/*" onchange="previewPortfolioImg(this)">
-        <i class="bi bi-cloud-upload"></i>
-        <p>Click or drag an image here</p>
+      <div class="img-upload-zone" id="p-drop-zone" onclick="document.getElementById('p-image-file').click()">
+        <input type="file" id="p-image-file" accept="image/*" onchange="previewPortfolioImg(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;pointer-events:none;">
+        <i class="bi bi-cloud-upload" id="p-upload-icon"></i>
+        <p id="p-upload-label">Click or drag an image here</p>
         <img id="p-img-preview" class="img-preview">
       </div>
       <input type="hidden" id="p-existing-image">
@@ -993,8 +993,8 @@ async function loadPortfolio() {
         <h4>${esc(item.title)}</h4>
         <p>${esc(item.description || '')}</p>
         <div class="portfolio-card-actions">
-          <button class="btn btn-ghost btn-sm" onclick="openPortfolioModal(window._portfolioItems['${item.id}'])"><i class="bi bi-pencil"></i> Edit</button>
-          <button class="btn btn-danger btn-sm" onclick="deletePortfolioItem('${item.id}','${esc(item.image_url||'')}')"><i class="bi bi-trash"></i></button>
+          <button class="btn btn-ghost btn-sm" onclick="openPortfolioModal(window._portfolioItems[${JSON.stringify(item.id)}])"><i class="bi bi-pencil"></i> Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deletePortfolioItem(${JSON.stringify(item.id)},${JSON.stringify(item.image_url||'')})"><i class="bi bi-trash"></i></button>
         </div>
       </div>
     </div>
@@ -1019,8 +1019,12 @@ function previewPortfolioImg(input) {
   const file = input.files[0];
   if (!file) return;
   const preview = document.getElementById('p-img-preview');
+  const icon    = document.getElementById('p-upload-icon');
+  const label   = document.getElementById('p-upload-label');
   preview.src = URL.createObjectURL(file);
   preview.style.display = 'block';
+  if (icon)  icon.style.display  = 'none';
+  if (label) label.textContent   = file.name;
 }
 
 async function savePortfolioItem() {
@@ -1090,8 +1094,8 @@ async function loadSkills() {
       <div class="skill-bar-wrap"><div class="skill-bar" style="width:${s.percentage}%"></div></div>
       <div class="skill-pct">${s.percentage}%</div>
       <div class="skill-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openSkillModal(window._skillItems['${s.id}'])"><i class="bi bi-pencil"></i></button>
-        <button class="btn btn-danger btn-sm" onclick="deleteSkill('${s.id}')"><i class="bi bi-trash"></i></button>
+        <button class="btn btn-ghost btn-sm" onclick="openSkillModal(window._skillItems[${JSON.stringify(s.id)}])"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-danger btn-sm" onclick="deleteSkill(${JSON.stringify(s.id)})"><i class="bi bi-trash"></i></button>
       </div>
     </div>
   `).join('');
@@ -1154,8 +1158,8 @@ async function loadServices() {
       <h4>${esc(svc.title)}</h4>
       <p>${esc(svc.description || '')}</p>
       <div class="service-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openServiceModal(window._serviceItems['${svc.id}'])"><i class="bi bi-pencil"></i> Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteService('${svc.id}')"><i class="bi bi-trash"></i></button>
+        <button class="btn btn-ghost btn-sm" onclick="openServiceModal(window._serviceItems[${JSON.stringify(svc.id)}])"><i class="bi bi-pencil"></i> Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteService(${JSON.stringify(svc.id)})"><i class="bi bi-trash"></i></button>
       </div>
     </div>
   `).join('');
@@ -1356,8 +1360,8 @@ async function loadResume() {
             <div class="period">${esc(r.period || '')}</div>
             <p>${esc(r.description || '')}</p>
             <div class="resume-item-actions">
-              <button class="btn btn-ghost btn-sm" onclick="openResumeModal('${r.type}', window._resumeItems['${r.id}'])"><i class="bi bi-pencil"></i> Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteResumeItem('${r.id}')"><i class="bi bi-trash"></i></button>
+              <button class="btn btn-ghost btn-sm" onclick="openResumeModal(${JSON.stringify(r.type)}, window._resumeItems[${JSON.stringify(r.id)}])"><i class="bi bi-pencil"></i> Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteResumeItem(${JSON.stringify(r.id)})"><i class="bi bi-trash"></i></button>
             </div>
           </div>`).join('')
       : '<div class="empty-state" style="padding:24px"><i class="bi bi-inbox"></i><p>None yet.</p></div>';
