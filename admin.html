@@ -1102,27 +1102,40 @@ async function loadSkills() {
 }
 
 function openSkillModal(skill = null) {
+  console.log('openSkillModal →', skill);
   document.getElementById('skill-edit-id').value = skill?.id || '';
   document.getElementById('s-name').value        = skill?.name || '';
-  document.getElementById('s-pct').value         = skill?.percentage || 80;
-  document.getElementById('s-pct-display').textContent = skill?.percentage || 80;
+  const pct = skill?.percentage ?? 80;
+  document.getElementById('s-pct').value         = pct;
+  document.getElementById('s-pct-display').textContent = pct;
   document.getElementById('skill-modal-title').textContent = skill ? 'Edit Skill' : 'Add Skill';
   openModal('skill-modal-overlay');
 }
 
 async function saveSkill() {
-  const id  = document.getElementById('skill-edit-id').value;
+  const id   = document.getElementById('skill-edit-id').value;
   const name = document.getElementById('s-name').value.trim();
   const pct  = parseInt(document.getElementById('s-pct').value);
   if (!name) { toast('error', 'Skill name is required.'); return; }
 
   const payload = { name, percentage: pct };
-  const { error } = id
-    ? await sb.from('skills').update(payload).eq('id', id)
-    : await sb.from('skills').insert([payload]);
+  console.log('saveSkill →', { id, payload });
 
-  if (error) { toast('error', error.message); return; }
-  toast('success', id ? 'Skill updated!' : 'Skill added!');
+  let result;
+  if (id) {
+    result = await sb.from('skills').update(payload).eq('id', id).select();
+  } else {
+    result = await sb.from('skills').insert([payload]).select();
+  }
+
+  const { data: saved, error } = result;
+  console.log('saveSkill result →', { saved, error });
+
+  if (error) {
+    toast('error', '❌ ' + (error.message || 'Unknown error') + (error.hint ? ' — ' + error.hint : ''));
+    return;
+  }
+  toast('success', id ? '✅ Skill updated!' : '✅ Skill added!');
   closeModal('skill-modal-overlay');
   loadSkills(); loadAll();
 }
@@ -1166,6 +1179,7 @@ async function loadServices() {
 }
 
 function openServiceModal(svc = null) {
+  console.log('openServiceModal →', svc);
   document.getElementById('svc-edit-id').value = svc?.id || '';
   document.getElementById('svc-title').value   = svc?.title || '';
   document.getElementById('svc-desc').value    = svc?.description || '';
@@ -1190,19 +1204,30 @@ function selectIcon(icon, el) {
 }
 
 async function saveService() {
-  const id   = document.getElementById('svc-edit-id').value;
+  const id    = document.getElementById('svc-edit-id').value;
   const title = document.getElementById('svc-title').value.trim();
   const desc  = document.getElementById('svc-desc').value.trim();
   const icon  = document.getElementById('svc-icon').value;
   if (!title) { toast('error', 'Service title is required.'); return; }
 
   const payload = { title, description: desc, icon };
-  const { error } = id
-    ? await sb.from('services').update(payload).eq('id', id)
-    : await sb.from('services').insert([payload]);
+  console.log('saveService →', { id, payload });
 
-  if (error) { toast('error', error.message); return; }
-  toast('success', id ? 'Service updated!' : 'Service added!');
+  let result;
+  if (id) {
+    result = await sb.from('services').update(payload).eq('id', id).select();
+  } else {
+    result = await sb.from('services').insert([payload]).select();
+  }
+
+  const { data: saved, error } = result;
+  console.log('saveService result →', { saved, error });
+
+  if (error) {
+    toast('error', '❌ ' + (error.message || 'Unknown error') + (error.hint ? ' — ' + error.hint : ''));
+    return;
+  }
+  toast('success', id ? '✅ Service updated!' : '✅ Service added!');
   closeModal('service-modal-overlay');
   loadServices(); loadAll();
 }
