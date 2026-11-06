@@ -525,6 +525,9 @@
       <div class="nav-item" onclick="showTab('stats')">
         <i class="bi bi-bar-chart-line"></i> Stats &amp; Counters
       </div>
+      <div class="nav-item" onclick="showTab('sitetext')">
+        <i class="bi bi-pencil-square"></i> Section Texts
+      </div>
     </nav>
 
     <div class="sidebar-footer">
@@ -744,6 +747,82 @@
       </div>
     </div>
 
+    <!-- ── SITE TEXT ───────────────────────────────────────────── -->
+    <div class="tab-content" id="tab-sitetext">
+      <div class="page-header">
+        <div><h2>Section Texts</h2><p>Edit the headings and descriptions shown on the live site.</p></div>
+        <button class="btn btn-success" onclick="saveSiteText()"><i class="bi bi-check-lg"></i> Save Changes</button>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:16px;"><i class="bi bi-house"></i> Hero / Name</h3>
+        <div class="form-group">
+          <label>Full Name (shown in hero &amp; sidebar)</label>
+          <input type="text" class="form-control" id="st-name" placeholder="Alimi Deborah Damilola">
+        </div>
+        <div class="form-group">
+          <label>Typed Roles (comma-separated, animated in hero)</label>
+          <input type="text" class="form-control" id="st-tagline" placeholder="Photographer, Videographer, ...">
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:16px;"><i class="bi bi-person"></i> About Section</h3>
+        <div class="form-group">
+          <label>About Subtitle (paragraph under "About" heading)</label>
+          <textarea class="form-control" id="st-bio" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+          <label>About Body (italic paragraph inside About)</label>
+          <textarea class="form-control" id="st-summary-full" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Resume Summary Paragraph (intro under Resume heading)</label>
+          <textarea class="form-control" id="st-summary" rows="3"></textarea>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:16px;"><i class="bi bi-tools"></i> Skills Section</h3>
+        <div class="form-group">
+          <label>Skills Subtitle</label>
+          <textarea class="form-control" id="st-skills" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:16px;"><i class="bi bi-file-earmark-text"></i> Resume Section</h3>
+        <div class="form-group">
+          <label>Resume Subtitle</label>
+          <textarea class="form-control" id="st-resume" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:16px;"><i class="bi bi-images"></i> Portfolio Section</h3>
+        <div class="form-group">
+          <label>Portfolio Subtitle</label>
+          <textarea class="form-control" id="st-portfolio" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:16px;"><i class="bi bi-briefcase"></i> Services Section</h3>
+        <div class="form-group">
+          <label>Services Subtitle</label>
+          <textarea class="form-control" id="st-services" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:16px;"><i class="bi bi-envelope"></i> Contact Section</h3>
+        <div class="form-group">
+          <label>Contact Subtitle</label>
+          <textarea class="form-control" id="st-contact" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div><!-- /dashboard -->
 
@@ -951,6 +1030,7 @@ function showTab(name) {
   if (name === 'about')     loadAbout();
   if (name === 'resume')    loadResume();
   if (name === 'stats')     loadStats();
+  if (name === 'sitetext')  loadSiteText();
 }
 
 async function loadAll() {
@@ -1286,6 +1366,42 @@ async function loadAbout() {
   if (data.stat_internships!= null) document.getElementById('stat-internships-val').value = data.stat_internships;
   if (data.stat_clients    != null) document.getElementById('stat-clients-val').value     = data.stat_clients;
   if (data.stat_experiences!= null) document.getElementById('stat-experiences-val').value = data.stat_experiences;
+}
+
+// ── SITE TEXT ─────────────────────────────────────────────────────────────
+async function loadSiteText() {
+  const { data } = await sb.from('about').select('*').eq('id', 1).single();
+  if (!data) return;
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+  setVal('st-name',         data.full_name);
+  setVal('st-tagline',      data.tagline);
+  setVal('st-bio',          data.bio);
+  setVal('st-summary',      data.summary);
+  setVal('st-summary-full', data.about_summary_full);
+  setVal('st-skills',       data.skills_subtitle);
+  setVal('st-resume',       data.resume_subtitle);
+  setVal('st-portfolio',    data.portfolio_subtitle);
+  setVal('st-services',     data.services_subtitle);
+  setVal('st-contact',      data.contact_subtitle);
+}
+
+async function saveSiteText() {
+  const g = id => document.getElementById(id)?.value.trim() || '';
+  const payload = {
+    full_name:          g('st-name'),
+    tagline:            g('st-tagline'),
+    bio:                g('st-bio'),
+    summary:            g('st-summary'),
+    about_summary_full: g('st-summary-full'),
+    skills_subtitle:    g('st-skills'),
+    resume_subtitle:    g('st-resume'),
+    portfolio_subtitle: g('st-portfolio'),
+    services_subtitle:  g('st-services'),
+    contact_subtitle:   g('st-contact'),
+  };
+  const { error } = await sb.from('about').upsert({ id: 1, ...payload });
+  if (error) { toast('error', '❌ ' + error.message); return; }
+  toast('success', '✅ Section texts saved! Reload the live site to see changes.');
 }
 
 function previewProfileImg(input) {

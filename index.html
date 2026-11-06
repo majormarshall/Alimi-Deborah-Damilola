@@ -800,6 +800,11 @@
         const summaryEl = document.querySelector('#about .fst-italic');
         if (summaryEl) summaryEl.textContent = about.summary;
       }
+      // About body (the longer italic paragraph)
+      if (about.about_summary_full) {
+        const bodyEl = document.querySelector('#about .fst-italic');
+        if (bodyEl) bodyEl.textContent = about.about_summary_full;
+      }
       // About info list items — by ID for reliability
       const setAboutSpan = (id, val) => { const el = document.getElementById(id); if (el && val) el.textContent = val; };
       setAboutSpan('about-loc',   about.location);
@@ -844,6 +849,18 @@
       updateStat('stat-internships',about.stat_internships);
       updateStat('stat-clients',    about.stat_clients);
       updateStat('stat-experiences',about.stat_experiences);
+
+      // ── Section subtitles ──
+      const setSectionSub = (sectionId, text) => {
+        if (!text) return;
+        const el = document.querySelector(`#${sectionId} .section-title p`);
+        if (el) el.textContent = text;
+      };
+      setSectionSub('skills',    about.skills_subtitle);
+      setSectionSub('resume',    about.resume_subtitle);
+      setSectionSub('portfolio', about.portfolio_subtitle);
+      setSectionSub('services',  about.services_subtitle);
+      setSectionSub('contact',   about.contact_subtitle);
     }
 
     // ── SKILLS ───────────────────────────────────────────────
