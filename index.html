@@ -383,116 +383,34 @@
             <li data-filter=".filter-broadcast">Broadcast</li>
           </ul><!-- End Portfolio Filters -->
 
-          <div class="row gy-4 isotope-container" data-aos="fade-up" data-aos-delay="200">
+          <!-- Portfolio skeleton — hidden instantly, replaced by Supabase data -->
+          <style>
+            .portfolio-skeleton { display:flex; flex-wrap:wrap; gap:16px; padding:8px 0; }
+            .portfolio-skeleton .skel-card {
+              flex: 1 1 calc(33.333% - 12px);
+              min-width: 240px;
+              border-radius: 10px;
+              overflow: hidden;
+              background: #e8ecef;
+              animation: skelPulse 1.4s ease-in-out infinite;
+            }
+            .portfolio-skeleton .skel-img  { width:100%; aspect-ratio:4/3; background:#d0d5da; }
+            .portfolio-skeleton .skel-info { padding:12px; }
+            .portfolio-skeleton .skel-line {
+              height:12px; border-radius:6px; background:#c4cad1; margin-bottom:8px;
+            }
+            .portfolio-skeleton .skel-line.short { width:60%; }
+            @keyframes skelPulse {
+              0%,100% { opacity:1; } 50% { opacity:.45; }
+            }
+          </style>
+          <div id="portfolio-skeleton" class="portfolio-skeleton">
+            <div class="skel-card"><div class="skel-img"></div><div class="skel-info"><div class="skel-line"></div><div class="skel-line short"></div></div></div>
+            <div class="skel-card"><div class="skel-img"></div><div class="skel-info"><div class="skel-line"></div><div class="skel-line short"></div></div></div>
+            <div class="skel-card"><div class="skel-img"></div><div class="skel-info"><div class="skel-line"></div><div class="skel-line short"></div></div></div>
+          </div>
 
-            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-photography">
-              <div class="portfolio-content h-100">
-                <img src="assets/img/portfolio/app-1.jpg" class="img-fluid" alt="Portrait Photography">
-                <div class="portfolio-info">
-                  <h4>Portrait Photography</h4>
-                  <p>Professional portrait sessions</p>
-                  <a href="assets/img/portfolio/app-1.jpg" title="Portrait Photography" data-gallery="portfolio-gallery-photography" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
-                  <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-events">
-              <div class="portfolio-content h-100">
-                <img src="assets/img/portfolio/product-1.jpg" class="img-fluid" alt="Event Coverage">
-                <div class="portfolio-info">
-                  <h4>Event Coverage</h4>
-                  <p>Weddings, birthdays &amp; gatherings</p>
-                  <a href="assets/img/portfolio/product-1.jpg" title="Event Coverage" data-gallery="portfolio-gallery-events" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
-                  <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-studio">
-              <div class="portfolio-content h-100">
-                <img src="assets/img/portfolio/branding-1.jpg" class="img-fluid" alt="Studio Sessions">
-                <div class="portfolio-info">
-                  <h4>Studio Sessions</h4>
-                  <p>Controlled studio photography</p>
-                  <a href="assets/img/portfolio/branding-1.jpg" title="Studio Sessions" data-gallery="portfolio-gallery-studio" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
-                  <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-broadcast">
-              <div class="portfolio-content h-100">
-                <img src="assets/img/portfolio/books-1.jpg" class="img-fluid" alt="Broadcast Production">
-                <div class="portfolio-info">
-                  <h4>TV Production</h4>
-                  <p>AIT – television studio work</p>
-                  <a href="assets/img/portfolio/books-1.jpg" title="TV Production" data-gallery="portfolio-gallery-broadcast" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
-                  <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-photography">
-              <div class="portfolio-content h-100">
-                <img src="assets/img/portfolio/app-2.jpg" class="img-fluid" alt="Product Photography">
-                <div class="portfolio-info">
-                  <h4>Product Photography</h4>
-                  <p>Commercial product shoots</p>
-                  <a href="assets/img/portfolio/app-2.jpg" title="Product Photography" data-gallery="portfolio-gallery-photography" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
-                  <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-events">
-              <div class="portfolio-content h-100">
-                <img src="assets/img/portfolio/product-2.jpg" class="img-fluid" alt="Religious Events">
-                <div class="portfolio-info">
-                  <h4>Religious Gatherings</h4>
-                  <p>Faith &amp; community event coverage</p>
-                  <a href="assets/img/portfolio/product-2.jpg" title="Religious Gatherings" data-gallery="portfolio-gallery-events" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
-                  <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-studio">
-              <div class="portfolio-content h-100">
-                <img src="assets/img/portfolio/branding-2.jpg" class="img-fluid" alt="Bob Pixels Studio">
-                <div class="portfolio-info">
-                  <h4>Bob Pixels Studio Work</h4>
-                  <p>Studio management &amp; photography</p>
-                  <a href="assets/img/portfolio/branding-2.jpg" title="Bob Pixels Studio Work" data-gallery="portfolio-gallery-studio" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
-                  <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-broadcast">
-              <div class="portfolio-content h-100">
-                <img src="assets/img/portfolio/books-2.jpg" class="img-fluid" alt="Radio Production">
-                <div class="portfolio-info">
-                  <h4>Radio Production</h4>
-                  <p>Voice FM 89.9 – broadcast intern</p>
-                  <a href="assets/img/portfolio/books-2.jpg" title="Radio Production" data-gallery="portfolio-gallery-broadcast" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
-                  <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-photography">
-              <div class="portfolio-content h-100">
-                <img src="assets/img/portfolio/app-3.jpg" class="img-fluid" alt="Video Content">
-                <div class="portfolio-info">
-                  <h4>Video Content Creation</h4>
-                  <p>Edited with CapCut</p>
-                  <a href="assets/img/portfolio/app-3.jpg" title="Video Content Creation" data-gallery="portfolio-gallery-photography" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
-                  <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
+          <div class="row gy-4 isotope-container" data-aos="fade-up" data-aos-delay="200" style="display:none;">
           </div><!-- End Portfolio Container -->
 
         </div>
@@ -773,8 +691,22 @@
 
     const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
+    // ── PARALLEL FETCH — all tables at once for speed ────────
+    const [
+      { data: about },
+      { data: skills },
+      { data: services },
+      { data: resumeItems },
+      { data: items }
+    ] = await Promise.all([
+      sb.from('about').select('*').eq('id', 1).single(),
+      sb.from('skills').select('*').order('display_order'),
+      sb.from('services').select('*').order('display_order'),
+      sb.from('resume_items').select('*').order('display_order'),
+      sb.from('portfolio_items').select('*').order('display_order')
+    ]);
+
     // ── ABOUT ────────────────────────────────────────────────
-    const { data: about } = await sb.from('about').select('*').eq('id', 1).single();
     if (about) {
       // Name
       if (about.full_name) {
@@ -864,7 +796,6 @@
     }
 
     // ── SKILLS ───────────────────────────────────────────────
-    const { data: skills } = await sb.from('skills').select('*').order('display_order');
     if (skills && skills.length) {
       const wrap = document.querySelector('.skills-content');
       if (wrap) {
@@ -879,13 +810,11 @@
             </div>
           </div>`).join('');
         wrap.innerHTML = `<div class="col-lg-6">${renderSkills(col1)}</div><div class="col-lg-6">${renderSkills(col2)}</div>`;
-        // Re-trigger skills animation
         if (window.AOS) AOS.refresh();
       }
     }
 
     // ── SERVICES ─────────────────────────────────────────────
-    const { data: services } = await sb.from('services').select('*').order('display_order');
     if (services && services.length) {
       const svcRow = document.querySelector('#services .row.gy-4');
       if (svcRow) {
@@ -902,7 +831,6 @@
     }
 
     // ── RESUME ───────────────────────────────────────────────
-    const { data: resumeItems } = await sb.from('resume_items').select('*').order('display_order');
     if (resumeItems && resumeItems.length) {
       const edu = resumeItems.filter(r => r.type === 'education');
       const exp = resumeItems.filter(r => r.type === 'experience');
@@ -929,50 +857,57 @@
     }
 
     // ── PORTFOLIO ITEMS ───────────────────────────────────────
-    const { data: items } = await sb.from('portfolio_items').select('*').order('display_order');
-    if (items && items.length) {
-      const container = document.querySelector('.isotope-container');
-      if (container) {
-        container.innerHTML = items.map(item => {
-          const cat    = (item.category || 'photography').toLowerCase().replace(/\s+/g, '-');
-          const isVid  = item.media_type === 'video';
-          const src    = item.image_url || 'assets/img/portfolio/app-1.jpg';
-          const mediaEl = isVid
-            ? `<video src="${src}" class="img-fluid" muted playsinline preload="metadata" style="width:100%;aspect-ratio:4/3;object-fit:cover;"></video>`
-            : `<img src="${src}" class="img-fluid" alt="${item.title}" loading="lazy">`;
-          const previewLink = isVid
-            ? `<a href="${src}" title="${item.title}" data-gallery="portfolio-gallery-${cat}" data-glightbox="type: video" class="glightbox preview-link"><i class="bi bi-play-circle"></i></a>`
-            : `<a href="${src}" title="${item.title}" data-gallery="portfolio-gallery-${cat}" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>`;
-          return `
-          <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-${cat}">
-            <div class="portfolio-content h-100">
-              ${mediaEl}
-              <div class="portfolio-info">
-                <h4>${item.title}</h4>
-                <p>${item.description || ''}</p>
-                ${previewLink}
-                <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
-              </div>
-            </div>
-          </div>`;
-        }).join('');
+    const skeleton  = document.getElementById('portfolio-skeleton');
+    const container = document.querySelector('.isotope-container');
 
-        // Re-init Isotope after injecting items
-        if (window.Isotope) {
-          setTimeout(() => {
-            const iso = new Isotope(container, { itemSelector: '.portfolio-item', layoutMode: 'masonry' });
-            document.querySelectorAll('.portfolio-filters li').forEach(btn => {
-              btn.addEventListener('click', function() {
-                document.querySelector('.portfolio-filters .filter-active')?.classList.remove('filter-active');
-                this.classList.add('filter-active');
-                iso.arrange({ filter: this.getAttribute('data-filter') });
-              });
+    if (items && items.length && container) {
+      container.innerHTML = items.map(item => {
+        const cat    = (item.category || 'photography').toLowerCase().replace(/\s+/g, '-');
+        const isVid  = item.media_type === 'video';
+        const src    = item.image_url || 'assets/img/portfolio/app-1.jpg';
+        const mediaEl = isVid
+          ? `<video src="${src}" class="img-fluid" muted playsinline preload="metadata" style="width:100%;aspect-ratio:4/3;object-fit:cover;"></video>`
+          : `<img src="${src}" class="img-fluid" alt="${item.title}" loading="lazy">`;
+        const previewLink = isVid
+          ? `<a href="${src}" title="${item.title}" data-gallery="portfolio-gallery-${cat}" data-glightbox="type: video" class="glightbox preview-link"><i class="bi bi-play-circle"></i></a>`
+          : `<a href="${src}" title="${item.title}" data-gallery="portfolio-gallery-${cat}" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>`;
+        return `
+        <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-${cat}">
+          <div class="portfolio-content h-100">
+            ${mediaEl}
+            <div class="portfolio-info">
+              <h4>${item.title}</h4>
+              <p>${item.description || ''}</p>
+              ${previewLink}
+              <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+      // Hide skeleton, reveal real grid
+      if (skeleton) skeleton.style.display = 'none';
+      container.style.display = '';
+
+      // Re-init Isotope after injecting items
+      if (window.Isotope) {
+        setTimeout(() => {
+          const iso = new Isotope(container, { itemSelector: '.portfolio-item', layoutMode: 'masonry' });
+          document.querySelectorAll('.portfolio-filters li').forEach(btn => {
+            btn.addEventListener('click', function() {
+              document.querySelector('.portfolio-filters .filter-active')?.classList.remove('filter-active');
+              this.classList.add('filter-active');
+              iso.arrange({ filter: this.getAttribute('data-filter') });
             });
-            if (window.AOS) AOS.refresh();
-            if (window.GLightbox) GLightbox({ selector: '.glightbox' });
-          }, 200);
-        }
+          });
+          if (window.AOS) AOS.refresh();
+          if (window.GLightbox) GLightbox({ selector: '.glightbox' });
+        }, 200);
       }
+    } else {
+      // No items from Supabase — hide skeleton, show empty state
+      if (skeleton) skeleton.style.display = 'none';
+      if (container) container.style.display = '';
     }
   })();
   </script>
