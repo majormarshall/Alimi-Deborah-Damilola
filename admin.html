@@ -682,7 +682,7 @@
         <div class="bulk-drop-zone" id="bulk-drop-zone">
           <input type="file" id="bulk-file-input" accept="image/*,video/*" multiple onchange="handleBulkFiles(this.files)">
           <i class="bi bi-cloud-arrow-up"></i>
-          <p><strong>Click or drag up to 20 photos &amp; videos here</strong></p>
+          <p><strong>Click or drag up to 50 photos &amp; videos here</strong></p>
           <small>Supports JPG, PNG, GIF, WebP &bull; MP4, MOV, WebM &bull; Max 50 MB each</small>
         </div>
         <div class="bulk-preview-grid" id="bulk-preview-grid"></div>
@@ -1697,7 +1697,7 @@ async function uploadFile(file, bucket) {
 const uploadImage = uploadFile;
 
 // ── BULK UPLOAD ───────────────────────────────────────────────────────────
-const MAX_BULK = 20;
+const MAX_BULK = 50;
 const MAX_SIZE_MB = 50;
 let _bulkFiles = []; // array of File objects
 
