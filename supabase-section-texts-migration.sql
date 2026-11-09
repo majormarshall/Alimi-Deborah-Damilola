@@ -12,3 +12,6 @@ ALTER TABLE about ADD COLUMN IF NOT EXISTS portfolio_subtitle    TEXT DEFAULT 'A
 ALTER TABLE about ADD COLUMN IF NOT EXISTS resume_subtitle       TEXT DEFAULT 'Film and Multimedia Production graduate with practical experience across television, radio, photography and studio management.';
 ALTER TABLE about ADD COLUMN IF NOT EXISTS contact_subtitle      TEXT DEFAULT 'Ready to collaborate or discuss an opportunity? Reach out and let''s create something remarkable together.';
 ALTER TABLE about ADD COLUMN IF NOT EXISTS about_summary_full    TEXT DEFAULT 'A creative and detail-driven media professional with a strong foundation in broadcast production, photography, and visual storytelling. Open to relocation, including Lagos, upon securing a suitable role.';
+
+-- Add media_type column to portfolio_items (run once)
+ALTER TABLE portfolio_items ADD COLUMN IF NOT EXISTS media_type TEXT DEFAULT 'image';

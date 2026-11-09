@@ -934,16 +934,23 @@
       const container = document.querySelector('.isotope-container');
       if (container) {
         container.innerHTML = items.map(item => {
-          const cat = (item.category || 'photography').toLowerCase().replace(/\s+/g, '-');
-          const imgSrc = item.image_url || 'assets/img/portfolio/app-1.jpg';
+          const cat    = (item.category || 'photography').toLowerCase().replace(/\s+/g, '-');
+          const isVid  = item.media_type === 'video';
+          const src    = item.image_url || 'assets/img/portfolio/app-1.jpg';
+          const mediaEl = isVid
+            ? `<video src="${src}" class="img-fluid" muted playsinline preload="metadata" style="width:100%;aspect-ratio:4/3;object-fit:cover;"></video>`
+            : `<img src="${src}" class="img-fluid" alt="${item.title}" loading="lazy">`;
+          const previewLink = isVid
+            ? `<a href="${src}" title="${item.title}" data-gallery="portfolio-gallery-${cat}" data-glightbox="type: video" class="glightbox preview-link"><i class="bi bi-play-circle"></i></a>`
+            : `<a href="${src}" title="${item.title}" data-gallery="portfolio-gallery-${cat}" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>`;
           return `
           <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-${cat}">
             <div class="portfolio-content h-100">
-              <img src="${imgSrc}" class="img-fluid" alt="${item.title}" loading="lazy">
+              ${mediaEl}
               <div class="portfolio-info">
                 <h4>${item.title}</h4>
                 <p>${item.description || ''}</p>
-                <a href="${imgSrc}" title="${item.title}" data-gallery="portfolio-gallery-${cat}" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
+                ${previewLink}
                 <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
               </div>
             </div>

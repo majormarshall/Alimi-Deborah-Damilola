@@ -252,12 +252,19 @@
       border-radius: var(--radius);
       overflow: hidden;
       transition: transform .2s, box-shadow .2s;
+      position: relative;
     }
     .portfolio-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,.4); }
 
-    .portfolio-card img {
+    .portfolio-card img, .portfolio-card video {
       width: 100%; aspect-ratio: 4/3; object-fit: cover;
       background: var(--border);
+    }
+    .portfolio-card .media-badge {
+      position: absolute; top: 8px; right: 8px;
+      background: rgba(0,0,0,.7); color:#fff;
+      font-size: 11px; font-weight:700; padding: 3px 8px;
+      border-radius: 20px; display:flex; align-items:center; gap:4px;
     }
     .portfolio-card .no-img {
       width: 100%; aspect-ratio: 4/3;
@@ -651,8 +658,41 @@
     <div class="tab-content" id="tab-portfolio">
       <div class="page-header">
         <div><h2>Portfolio Items</h2><p>Add, edit or remove your work samples.</p></div>
-        <button class="btn btn-primary" onclick="openPortfolioModal()"><i class="bi bi-plus-lg"></i> Add Item</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-ghost" onclick="openBulkUpload()"><i class="bi bi-cloud-upload"></i> Bulk Upload</button>
+          <button class="btn btn-primary" onclick="openPortfolioModal()"><i class="bi bi-plus-lg"></i> Add Item</button>
+        </div>
       </div>
+
+      <!-- Bulk Upload Panel -->
+      <div id="bulk-panel" style="display:none;" class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h3 style="font-size:16px;font-weight:700;"><i class="bi bi-cloud-arrow-up" style="color:var(--accent);margin-right:8px;"></i>Bulk Upload Media</h3>
+          <button class="btn btn-ghost btn-sm" onclick="closeBulkUpload()"><i class="bi bi-x-lg"></i> Close</button>
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>Category for all uploads</label>
+          <select class="form-control" id="bulk-category" style="max-width:280px;">
+            <option value="photography">Photography</option>
+            <option value="events">Events</option>
+            <option value="studio">Studio</option>
+            <option value="broadcast">Broadcast</option>
+          </select>
+        </div>
+        <div class="bulk-drop-zone" id="bulk-drop-zone">
+          <input type="file" id="bulk-file-input" accept="image/*,video/*" multiple onchange="handleBulkFiles(this.files)">
+          <i class="bi bi-cloud-arrow-up"></i>
+          <p><strong>Click or drag up to 20 photos &amp; videos here</strong></p>
+          <small>Supports JPG, PNG, GIF, WebP &bull; MP4, MOV, WebM &bull; Max 50 MB each</small>
+        </div>
+        <div class="bulk-preview-grid" id="bulk-preview-grid"></div>
+        <div class="bulk-actions">
+          <span id="bulk-status" style="font-size:13px;color:var(--muted);align-self:center;flex:1;"></span>
+          <button class="btn btn-ghost btn-sm" onclick="clearBulkFiles()"><i class="bi bi-trash"></i> Clear All</button>
+          <button class="btn btn-success" id="bulk-upload-btn" onclick="runBulkUpload()" disabled><i class="bi bi-cloud-upload"></i> Upload All</button>
+        </div>
+      </div>
+
       <div class="portfolio-grid" id="portfolio-grid">
         <div class="loading-spinner"></div>
       </div>
@@ -917,14 +957,16 @@
       </select>
     </div>
     <div class="form-group">
-      <label>Image</label>
+      <label>Photo or Video</label>
       <div class="img-upload-zone" id="p-drop-zone" onclick="document.getElementById('p-image-file').click()">
-        <input type="file" id="p-image-file" accept="image/*" onchange="previewPortfolioImg(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;pointer-events:none;">
+        <input type="file" id="p-image-file" accept="image/*,video/*" onchange="previewPortfolioMedia(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;pointer-events:none;">
         <i class="bi bi-cloud-upload" id="p-upload-icon"></i>
-        <p id="p-upload-label">Click or drag an image here</p>
+        <p id="p-upload-label">Click to upload a photo or video</p>
         <img id="p-img-preview" class="img-preview">
+        <video id="p-vid-preview" class="img-preview" controls muted style="display:none;"></video>
       </div>
       <input type="hidden" id="p-existing-image">
+      <input type="hidden" id="p-media-type" value="image">
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('portfolio-modal-overlay')">Cancel</button>
@@ -1119,18 +1161,24 @@ async function loadPortfolio() {
   const { data, error } = await sb.from('portfolio_items').select('*').order('display_order');
   if (error) { grid.innerHTML = `<p style="color:var(--danger)">${error.message}</p>`; return; }
   if (!data.length) {
-    grid.innerHTML = '<div class="empty-state"><i class="bi bi-images"></i><p>No portfolio items yet.<br>Click "Add Item" to get started.</p></div>';
+    grid.innerHTML = '<div class="empty-state"><i class="bi bi-images"></i><p>No portfolio items yet.<br>Click "Add Item" or "Bulk Upload" to get started.</p></div>';
     return;
   }
-  // Store items in a registry keyed by id
   window._portfolioItems = {};
   data.forEach(item => { window._portfolioItems[item.id] = item; });
 
-  grid.innerHTML = data.map(item => `
+  grid.innerHTML = data.map(item => {
+    const isVideo = item.media_type === 'video';
+    const mediaBadge = isVideo ? '<div class="media-badge"><i class="bi bi-play-circle-fill"></i> Video</div>' : '';
+    const mediaEl = item.image_url
+      ? (isVideo
+          ? `<video src="${item.image_url}" muted playsinline preload="metadata" style="width:100%;aspect-ratio:4/3;object-fit:cover;"></video>`
+          : `<img src="${item.image_url}" alt="${esc(item.title)}" loading="lazy">`)
+      : `<div class="no-img"><i class="bi bi-${isVideo?'camera-video':'image'}"></i></div>`;
+    return `
     <div class="portfolio-card">
-      ${item.image_url
-        ? `<img src="${item.image_url}" alt="${esc(item.title)}" loading="lazy">`
-        : `<div class="no-img"><i class="bi bi-image"></i></div>`}
+      ${mediaBadge}
+      ${mediaEl}
       <div class="portfolio-card-body">
         <div class="category-badge">${esc(item.category || 'photography')}</div>
         <h4>${esc(item.title)}</h4>
@@ -1140,44 +1188,67 @@ async function loadPortfolio() {
           <button class="btn btn-danger btn-sm" data-action="delete-portfolio" data-id="${esc(item.id)}" data-img="${esc(item.image_url||'')}"><i class="bi bi-trash"></i></button>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function openPortfolioModal(item = null) {
-  document.getElementById('portfolio-edit-id').value = item?.id || '';
-  document.getElementById('p-title').value           = item?.title || '';
-  document.getElementById('p-desc').value            = item?.description || '';
-  document.getElementById('p-category').value        = item?.category || 'photography';
-  document.getElementById('p-existing-image').value  = item?.image_url || '';
-  document.getElementById('p-image-file').value      = '';
-  const preview = document.getElementById('p-img-preview');
-  if (item?.image_url) { preview.src = item.image_url; preview.style.display = 'block'; }
-  else                 { preview.style.display = 'none'; }
+  document.getElementById('portfolio-edit-id').value  = item?.id || '';
+  document.getElementById('p-title').value            = item?.title || '';
+  document.getElementById('p-desc').value             = item?.description || '';
+  document.getElementById('p-category').value         = item?.category || 'photography';
+  document.getElementById('p-existing-image').value   = item?.image_url || '';
+  document.getElementById('p-media-type').value       = item?.media_type || 'image';
+  document.getElementById('p-image-file').value       = '';
+  const imgPrev = document.getElementById('p-img-preview');
+  const vidPrev = document.getElementById('p-vid-preview');
+  const icon    = document.getElementById('p-upload-icon');
+  const label   = document.getElementById('p-upload-label');
+  imgPrev.style.display = 'none';
+  vidPrev.style.display = 'none';
+  icon.style.display = 'block';
+  label.textContent = 'Click to upload a photo or video';
+  if (item?.image_url) {
+    if (item.media_type === 'video') {
+      vidPrev.src = item.image_url; vidPrev.style.display = 'block'; icon.style.display = 'none';
+    } else {
+      imgPrev.src = item.image_url; imgPrev.style.display = 'block'; icon.style.display = 'none';
+    }
+  }
   document.getElementById('portfolio-modal-title').textContent = item ? 'Edit Portfolio Item' : 'Add Portfolio Item';
   openModal('portfolio-modal-overlay');
 }
 
-function previewPortfolioImg(input) {
+function previewPortfolioMedia(input) {
   const file = input.files[0];
   if (!file) return;
-  const preview = document.getElementById('p-img-preview');
+  const imgPrev = document.getElementById('p-img-preview');
+  const vidPrev = document.getElementById('p-vid-preview');
   const icon    = document.getElementById('p-upload-icon');
   const label   = document.getElementById('p-upload-label');
-  preview.src = URL.createObjectURL(file);
-  preview.style.display = 'block';
-  if (icon)  icon.style.display  = 'none';
-  if (label) label.textContent   = file.name;
+  const url     = URL.createObjectURL(file);
+  const isVid   = file.type.startsWith('video/');
+  document.getElementById('p-media-type').value = isVid ? 'video' : 'image';
+  icon.style.display  = 'none';
+  label.textContent   = file.name;
+  if (isVid) {
+    vidPrev.src = url; vidPrev.style.display = 'block';
+    imgPrev.style.display = 'none';
+  } else {
+    imgPrev.src = url; imgPrev.style.display = 'block';
+    vidPrev.style.display = 'none';
+  }
 }
 
 async function savePortfolioItem() {
-  const id       = document.getElementById('portfolio-edit-id').value;
-  const title    = document.getElementById('p-title').value.trim();
-  const desc     = document.getElementById('p-desc').value.trim();
-  const cat      = document.getElementById('p-category').value;
-  const fileEl   = document.getElementById('p-image-file');
-  const existing = document.getElementById('p-existing-image').value;
-  const btn      = document.getElementById('portfolio-save-btn');
+  const id        = document.getElementById('portfolio-edit-id').value;
+  const title     = document.getElementById('p-title').value.trim();
+  const desc      = document.getElementById('p-desc').value.trim();
+  const cat       = document.getElementById('p-category').value;
+  const fileEl    = document.getElementById('p-image-file');
+  const existing  = document.getElementById('p-existing-image').value;
+  const mediaType = document.getElementById('p-media-type').value;
+  const btn       = document.getElementById('portfolio-save-btn');
 
   if (!title) { toast('error', 'Title is required.'); return; }
 
@@ -1185,12 +1256,12 @@ async function savePortfolioItem() {
 
   let imageUrl = existing;
   if (fileEl.files[0]) {
-    const uploaded = await uploadImage(fileEl.files[0], 'portfolio-images');
+    const uploaded = await uploadFile(fileEl.files[0], 'portfolio-images');
     if (!uploaded) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-lg"></i> Save'; return; }
     imageUrl = uploaded;
   }
 
-  const payload = { title, description: desc, category: cat, image_url: imageUrl };
+  const payload = { title, description: desc, category: cat, image_url: imageUrl, media_type: mediaType };
   const { error } = id
     ? await sb.from('portfolio_items').update(payload).eq('id', id)
     : await sb.from('portfolio_items').insert([payload]);
@@ -1200,8 +1271,7 @@ async function savePortfolioItem() {
 
   toast('success', id ? 'Portfolio item updated!' : 'Portfolio item added!');
   closeModal('portfolio-modal-overlay');
-  loadPortfolio();
-  loadAll();
+  loadPortfolio(); loadAll();
 }
 
 async function deletePortfolioItem(id, imageUrl) {
@@ -1615,14 +1685,138 @@ async function deleteResumeItem(id) {
 }
 
 // ── STORAGE UPLOAD ────────────────────────────────────────────────────────
-async function uploadImage(file, bucket) {
-  const ext  = file.name.split('.').pop();
+async function uploadFile(file, bucket) {
+  const ext  = file.name.split('.').pop().toLowerCase();
   const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
   const { error: uploadErr } = await sb.storage.from(bucket).upload(path, file, { upsert: false });
   if (uploadErr) { toast('error', 'Upload failed: ' + uploadErr.message); return null; }
   const { data } = sb.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;
 }
+// Keep old name as alias
+const uploadImage = uploadFile;
+
+// ── BULK UPLOAD ───────────────────────────────────────────────────────────
+const MAX_BULK = 20;
+const MAX_SIZE_MB = 50;
+let _bulkFiles = []; // array of File objects
+
+function openBulkUpload() {
+  document.getElementById('bulk-panel').style.display = 'block';
+  document.getElementById('bulk-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function closeBulkUpload() {
+  document.getElementById('bulk-panel').style.display = 'none';
+  clearBulkFiles();
+}
+
+function handleBulkFiles(fileList) {
+  const incoming = Array.from(fileList);
+  const combined = [..._bulkFiles];
+  for (const f of incoming) {
+    if (combined.length >= MAX_BULK) { toast('error', `Max ${MAX_BULK} files at once.`); break; }
+    if (f.size > MAX_SIZE_MB * 1024 * 1024) { toast('error', `${f.name} exceeds ${MAX_SIZE_MB} MB, skipped.`); continue; }
+    if (!f.type.startsWith('image/') && !f.type.startsWith('video/')) { toast('error', `${f.name} is not a supported media type, skipped.`); continue; }
+    combined.push(f);
+  }
+  _bulkFiles = combined;
+  renderBulkPreviews();
+  // reset input so same files can be re-added
+  document.getElementById('bulk-file-input').value = '';
+}
+
+function renderBulkPreviews() {
+  const grid = document.getElementById('bulk-preview-grid');
+  const btn  = document.getElementById('bulk-upload-btn');
+  const status = document.getElementById('bulk-status');
+  if (!_bulkFiles.length) { grid.innerHTML = ''; btn.disabled = true; status.textContent = ''; return; }
+  btn.disabled = false;
+  status.textContent = `${_bulkFiles.length} file${_bulkFiles.length>1?'s':''} selected`;
+  grid.innerHTML = _bulkFiles.map((f,i) => {
+    const isVid = f.type.startsWith('video/');
+    const thumb = isVid
+      ? `<div class="video-thumb"><i class="bi bi-play-circle-fill"></i></div>`
+      : `<img class="thumb" id="bulk-thumb-${i}" src="" alt="">`;
+    return `
+    <div class="bulk-preview-item" id="bulk-item-${i}">
+      ${thumb}
+      <div class="item-name" title="${esc(f.name)}">${esc(f.name)}</div>
+      <button class="remove-btn" onclick="removeBulkFile(${i})">&times;</button>
+      <div class="progress-bar-mini"><div class="progress-bar-mini-fill" id="bulk-prog-${i}"></div></div>
+    </div>`;
+  }).join('');
+  // Fill image thumbnails via FileReader
+  _bulkFiles.forEach((f,i) => {
+    if (f.type.startsWith('image/')) {
+      const img = document.getElementById(`bulk-thumb-${i}`);
+      if (img) { const r=new FileReader(); r.onload=e=>img.src=e.target.result; r.readAsDataURL(f); }
+    }
+  });
+}
+
+function removeBulkFile(idx) {
+  _bulkFiles.splice(idx, 1);
+  renderBulkPreviews();
+}
+function clearBulkFiles() {
+  _bulkFiles = [];
+  renderBulkPreviews();
+  document.getElementById('bulk-file-input').value = '';
+}
+
+async function runBulkUpload() {
+  if (!_bulkFiles.length) return;
+  const btn      = document.getElementById('bulk-upload-btn');
+  const status   = document.getElementById('bulk-status');
+  const category = document.getElementById('bulk-category').value;
+  btn.disabled = true;
+  let done = 0, failed = 0;
+
+  for (let i = 0; i < _bulkFiles.length; i++) {
+    const file  = _bulkFiles[i];
+    const item  = document.getElementById(`bulk-item-${i}`);
+    const bar   = document.getElementById(`bulk-prog-${i}`);
+    const isVid = file.type.startsWith('video/');
+
+    status.textContent = `Uploading ${i+1} of ${_bulkFiles.length}…`;
+    if (bar) bar.style.width = '30%';
+
+    const url = await uploadFile(file, 'portfolio-images');
+    if (bar) bar.style.width = '80%';
+
+    if (!url) { failed++; if (item) item.classList.add('error'); continue; }
+
+    const title = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g,' ');
+    const { error } = await sb.from('portfolio_items').insert([{
+      title,
+      category,
+      image_url: url,
+      media_type: isVid ? 'video' : 'image',
+    }]);
+
+    if (bar) bar.style.width = '100%';
+    if (error) { failed++; if (item) item.classList.add('error'); }
+    else       { done++;   if (item) item.classList.add('uploaded'); }
+  }
+
+  status.textContent = `Done! ${done} uploaded${failed?`, ${failed} failed`:''}. 🎉`;
+  btn.disabled = false;
+  loadPortfolio(); loadAll();
+  // Auto-clear after 3s
+  setTimeout(() => { clearBulkFiles(); }, 3000);
+}
+
+// Drag-over highlight for bulk zone
+document.addEventListener('DOMContentLoaded', () => {
+  const zone = document.getElementById('bulk-drop-zone');
+  if (!zone) return;
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    handleBulkFiles(e.dataTransfer.files);
+  });
+});
 
 // ── MODAL HELPERS ─────────────────────────────────────────────────────────
 function openModal(id)  { document.getElementById(id).classList.add('show'); }
